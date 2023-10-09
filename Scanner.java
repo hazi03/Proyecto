@@ -58,6 +58,7 @@ public class Scanner {
         // Inicializamos una cadena llamado lexema
         // Definimos un caracter c, que formara parte del lexema
         int estado = 0;
+        int flag = 0;
         String lexema = "";
         char c;
         int i = 0;
@@ -67,12 +68,18 @@ public class Scanner {
             c = source.charAt(i);
             // automata palabras reservadas, identificador y numeros(decimal, exponencial o
             // entero)
+
+            if (Character.isWhitespace(c)) {
+                flag = 1;
+            }
             switch (estado) {
                 case 0:
                     if (Character.isLetter(c)) {
+                        flag = 1;
                         estado = 13;
                         lexema += c;
                     } else if (Character.isDigit(c)) {
+                        flag = 1;
                         estado = 15;
                         lexema += c;
 
@@ -81,6 +88,7 @@ public class Scanner {
 
                 case 13:
                     if (Character.isLetterOrDigit(c)) {
+                        flag = 1;
                         estado = 13;
                         lexema += c;
                     } else {
@@ -99,13 +107,16 @@ public class Scanner {
 
                 case 15:
                     if (Character.isDigit(c)) {
+                        flag = 1;
                         estado = 15;
                         lexema += c;
                     } else if (c == '.') {
+                        flag = 1;
                         estado = 16;
                         lexema += c;
 
                     } else if (c == 'E') {
+                        flag = 1;
                         estado = 18;
                         lexema += c;
 
@@ -120,15 +131,18 @@ public class Scanner {
 
                 case 16:
                     if (Character.isDigit(c)) {
+                        flag = 1;
                         estado = 17;
                         lexema += c;
                     }
                     break;
                 case 17:
                     if (Character.isDigit(c)) {
+                        flag = 1;
                         estado = 17;
                         lexema += c;
                     } else if (c == 'E') {
+                        flag = 1;
                         estado = 18;
                         lexema += c;
                     } else {
@@ -141,21 +155,25 @@ public class Scanner {
                     break;
                 case 18:
                     if (c == '+' || c == '-') {
+                        flag = 1;
                         estado = 19;
                         lexema += c;
                     } else if (Character.isDigit(c)) {
+                        flag = 1;
                         estado = 20;
                         lexema += c;
                     }
                     break;
                 case 19:
                     if (Character.isDigit(c)) {
+                        flag = 1;
                         estado = 20;
                         lexema += c;
                     }
                     break;
                 case 20:
                     if (Character.isDigit(c)) {
+                        flag = 1;
                         estado = 20;
                         lexema += c;
                     } else {
@@ -172,14 +190,16 @@ public class Scanner {
             switch (estado) {
                 case 0:
                     if (c == '/') {
+                        flag = 1;
                         estado = 26;
                     }
                     break;
                 case 26:
                     if (c == '*') {
-
+                        flag = 1;
                         estado = 27;
                     } else if (c == '/') {
+                        flag = 1;
                         estado = 30;
                     } else {
                         estado = 32;
@@ -187,25 +207,31 @@ public class Scanner {
                     break;
                 case 27:
                     if (c == '*') {
+                        flag = 1;
                         estado = 28;
                     } else
-                        estado = 27;
+                        flag = 1;
+                    estado = 27;
 
                     break;
                 case 28:
                     if (c == '*') {
+                        flag = 1;
                         estado = 28;
                     } else if (c == '/') {
                         estado = 29;
                     } else {
+                        flag = 1;
                         estado = 27;
 
                     }
                     break;
                 case 30:
                     if (c == '\n') {
+                        flag = 1;
                         estado = 31;
                     } else {
+                        flag = 1;
                         estado = 30;
                     }
                     break;
@@ -215,14 +241,17 @@ public class Scanner {
             switch (estado) {
                 case 0:
                     if (c == '"') {
+                        flag = 1;
                         estado = 24;
                     }
                     break;
 
                 case 24:
                     if (c == '"') {
+                        flag = 1;
                         estado = 25;
                     } else {
+                        flag = 1;
                         estado = 24;
                         lexema += c;
                     }
@@ -245,15 +274,19 @@ public class Scanner {
             switch (estado) {
                 case 0:
                     if (c == '>') {
+                        flag = 1;
                         estado = 1;
                         lexema += c;
                     } else if (c == '<') {
+                        flag = 1;
                         estado = 4;
                         lexema += c;
                     } else if (c == '=') {
+                        flag = 1;
                         estado = 7;
                         lexema += c;
                     } else if (c == '!') {
+                        flag = 1;
                         estado = 10;
                         lexema += c;
                     }
@@ -261,6 +294,7 @@ public class Scanner {
 
                 case 1:
                     if (c == '=') {
+                        flag = 1;
                         estado = 2;
                         lexema += c;
                     } else {
@@ -282,6 +316,7 @@ public class Scanner {
 
                 case 4:
                     if (c == '=') {
+                        flag = 1;
                         estado = 5;
                         lexema += c;
                     } else {
@@ -302,6 +337,7 @@ public class Scanner {
 
                 case 7:
                     if (c == '=') {
+                        flag = 1;
                         estado = 8;
                         lexema += c;
                     } else {
@@ -323,6 +359,7 @@ public class Scanner {
 
                 case 10:
                     if (c == '=') {
+                        flag = 1;
                         estado = 11;
                         lexema += c;
                     } else {
@@ -386,18 +423,26 @@ public class Scanner {
 
             if (estado == 90) {
                 i--;
+                flag = 1;
                 lexema = "";
                 estado = 0;
             } else if (estado == 31 || estado == 29) {
+                flag = 1;
                 estado = 0;
                 lexema = "";
             } else if (estado == 32) {
                 i--;
                 tokens.add(new Token(TipoToken.SLASH, String.valueOf(source.charAt(i))));
-
+                flag = 1;
                 estado = 0;
                 lexema = "";
             }
+            if (flag == 0) {
+                System.out.println("Caracter no valido:" + "" + c);
+                return tokens;
+
+            }
+            flag = 0;
         }
         if (estado == 27 || estado == 28) {
             // Comentario no cerrado, lanza una excepción
