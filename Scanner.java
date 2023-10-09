@@ -3,20 +3,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// Excepción para comentarios multilinea no cerrados correctamente
-class CommentNotClosedException extends Exception {
-    public CommentNotClosedException(String message) {
-        super(message);
-    }
-}
-
-// Excepción para cadenas de texto no cerradas correctamente
-class UnclosedStringException extends Exception {
-    public UnclosedStringException(String message) {
-        super(message);
-    }
-}
-
 public class Scanner {
 
     private static final Map<String, TipoToken> palabrasReservadas;
@@ -250,6 +236,10 @@ public class Scanner {
                     if (c == '"') {
                         flag = 1;
                         estado = 25;
+                    }
+
+                    else if (c == '\n') {
+                        estado = 67;
                     } else {
                         flag = 1;
                         estado = 24;
@@ -442,9 +432,15 @@ public class Scanner {
                 return tokens;
 
             }
+            if (estado == 67) {
+                // Comillas no cerradas correctamente
+                throw new IllegalArgumentException("Error: Salto de linea entre comillas");
+            }
             flag = 0;
         }
-        if (estado == 27 || estado == 28) {
+        if (estado == 27 || estado == 28)
+
+        {
             // Comentario no cerrado, lanza una excepción
             throw new IllegalArgumentException("Error:Comentario multilinea no cerrado");
         }
