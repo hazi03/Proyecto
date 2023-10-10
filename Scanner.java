@@ -3,20 +3,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// Excepción para comentarios multilinea no cerrados correctamente
-class CommentNotClosedException extends Exception {
-    public CommentNotClosedException(String message) {
-        super(message);
-    }
-}
-
-// Excepción para cadenas de texto no cerradas correctamente
-class UnclosedStringException extends Exception {
-    public UnclosedStringException(String message) {
-        super(message);
-    }
-}
-
 public class Scanner {
 
     private static final Map<String, TipoToken> palabrasReservadas;
@@ -52,32 +38,36 @@ public class Scanner {
     // identificar que lexema es
 
     // ANALIZADOR LEXICO O SCANNER
-    /**
-     * @return
-     * @throws Exception
-     */
-    public List<Token> scan() throws Exception {
+    public List<Token> scan() {
 
         // El estado inicial del automata es cero
         // Inicializamos una cadena llamado lexema
         // Definimos un caracter c, que formara parte del lexema
         int estado = 0;
+        int flag = 0;
         String lexema = "";
         char c;
-        
-        
-
+        int i = 0;
 
         // Hasta que recorra toda la cadena
-        for (int i = 0; i < source.length(); i++) {
+        for (i = 0; i < source.length(); i++) {
             c = source.charAt(i);
-            //automata palabras reservadas, identificador y numeros(decimal, exponencial o entero)
+            // automata palabras reservadas, identificador y numeros(decimal, exponencial
+            // o// entero)
+            // Verificacion si el carácter es un espacio vacio
+            if (Character.isWhitespace(c)) {
+                flag = 1;
+            }
             switch (estado) {
+                // Caso inicial del automata
                 case 0:
                     if (Character.isLetter(c)) {
+                        flag = 1;
                         estado = 13;
                         lexema += c;
+
                     } else if (Character.isDigit(c)) {
+                        flag = 1;
                         estado = 15;
                         lexema += c;
 
@@ -85,15 +75,19 @@ public class Scanner {
                     break;
 
                 case 13:
+                    // Si el carácter es digito se vuelve al estado al mismo estado
                     if (Character.isLetterOrDigit(c)) {
+                        flag = 1;
                         estado = 13;
                         lexema += c;
                     } else {
+                        // Se crea el token del carácter leído anteriormente
                         TipoToken tt = palabrasReservadas.get(lexema);
-
+                        // Se verifica el tipo del token, y se añade a la lista de token.
                         if (tt == null) {
                             Token t = new Token(TipoToken.IDENTIFIER, lexema);
                             tokens.add(t);
+                            // Se crea un nuevo token si el tipo de token no es nulo.
                         } else {
                             Token t = new Token(tt, lexema);
                             tokens.add(t);
@@ -103,138 +97,159 @@ public class Scanner {
                     break;
 
                 case 15:
+                    // Se permance en el mismo estado si se recibe un dígito.
                     if (Character.isDigit(c)) {
+                        flag = 1;
                         estado = 15;
                         lexema += c;
+                        // Se verifica el caso de que sea un número decimal.
                     } else if (c == '.') {
+                        flag = 1;
                         estado = 16;
                         lexema += c;
-
+                        // Se verifica el caso de que sea un número sea un exponente.
                     } else if (c == 'E') {
+                        flag = 1;
                         estado = 18;
                         lexema += c;
-
+                        // Se obtiene el caso de que se esta procesando un número entero, se crea el
+                        // token y se le asigna el valor del numero entero
                     } else {
                         Token t = new Token(TipoToken.NUMBER, lexema, Integer.valueOf(lexema));
                         tokens.add(t);
 
                         estado = 90;
-                        
+
                     }
                     break;
 
                 case 16:
+                    // Avanza al siguiente estado si el cáracter a procesar es un dígito.
                     if (Character.isDigit(c)) {
+                        flag = 1;
                         estado = 17;
                         lexema += c;
                     }
                     break;
                 case 17:
+                    // Si el cáracter a procesar es un digito permanece en el mismo estado.
                     if (Character.isDigit(c)) {
+                        flag = 1;
                         estado = 17;
                         lexema += c;
+                        // Si el cáracter a procesar es un exponencial avanza al estado 18.
                     } else if (c == 'E') {
+                        flag = 1;
                         estado = 18;
                         lexema += c;
                     } else {
+                        // Se creal el token referente a numero, y se le asigna el valor del número
+                        // flotante.
                         Token t = new Token(TipoToken.NUMBER, lexema, Float.valueOf(lexema));
                         tokens.add(t);
 
                         estado = 90;
-                       
+
                     }
                     break;
                 case 18:
+                    // Si el carácter es un '+' o '-' se avanza al estado 19.
                     if (c == '+' || c == '-') {
+                        flag = 1;
                         estado = 19;
                         lexema += c;
+                        // Si el carácter es un digito se avanza al estado 20.
                     } else if (Character.isDigit(c)) {
+                        flag = 1;
                         estado = 20;
                         lexema += c;
                     }
                     break;
                 case 19:
+                    // Si el carácter es un digito se avanza al estado 20.
                     if (Character.isDigit(c)) {
+                        flag = 1;
                         estado = 20;
                         lexema += c;
                     }
                     break;
+                // Si el carácter es un digito permanece en el mismo estado.
                 case 20:
                     if (Character.isDigit(c)) {
+                        flag = 1;
                         estado = 20;
                         lexema += c;
+                        // Se crea el token número y se le asocia el valor del numero de tipo doble.
                     } else {
                         Token t = new Token(TipoToken.NUMBER, lexema, Double.parseDouble(lexema));
                         tokens.add(t);
 
-                        estado =90;
-                       
+                        estado = 90;
+
                     }
                     break;
 
             }
-            /*Automata Comentario*/
+            /* Automata Comentario */
             switch (estado) {
                 case 0:
+                    // Se verifica el inicio de un posible comentario
                     if (c == '/') {
+                        flag = 1;
                         estado = 26;
-                        
                     }
                     break;
                 case 26:
+                    // Se verifica el caso de que sea un posible comentario multilínea
                     if (c == '*') {
+                        flag = 1;
                         estado = 27;
+                        // Se verifica el caso de que sea un comentario de una sola línea
                     } else if (c == '/') {
+                        flag = 1;
                         estado = 30;
-                    } else{
-                        estado=32;
+                        // Se avanza al estado 32, en el cual se genera el token SLASH y se le asocia el
+                        // valor de NULL
+                    } else {
+                        estado = 32;
                     }
                     break;
                 case 27:
+                    // Se avanza al estado de posible cierre de comentario.
                     if (c == '*') {
+                        flag = 1;
                         estado = 28;
-                    }
-                    else 
-                        estado = 27;
-            
+                        // Se permanece en el mismo estado si recibe otro caracter.
+                    } else
+                        flag = 1;
+                    estado = 27;
+
                     break;
                 case 28:
+                    // Permance en el mismo estado si se procesa un '*'.
                     if (c == '*') {
+                        flag = 1;
                         estado = 28;
+                        // Se completa el cierre de comentario.
                     } else if (c == '/') {
                         estado = 29;
-                    }
-                      else if (c == '\0'){
-                        estado = 35;
-                      }
-                        else {
+                        // Se procede al estado 27, en el cual se lanza una excepción de comentario
+                        // multilinea no cerrado
+                    } else {
+                        flag = 1;
                         estado = 27;
+
                     }
                     break;
                 case 30:
+                    // Se procede al estado final del comentario de una sola línea
                     if (c == '\n') {
+                        flag = 1;
                         estado = 31;
+                        // Se mantiene en el mismo estado si recibe cualquier otro carácter.
                     } else {
+                        flag = 1;
                         estado = 30;
-                    }
-                    break;
-                case 29:{
-                        i--;
-                        lexema = "";
-                        estado = 0;
-                }
-                case 32:
-                {
-                    Token t = new Token(TipoToken.SLASH, lexema);
-                        tokens.add(t);
-                        i--;
-                        lexema = "";
-                        estado = 0;
-                }
-                break;
-                case 35:
-                    {
-                        Interprete.error(i,"Existe Un error en el comentario Multilínea");
                     }
                     break;
             }
@@ -242,63 +257,83 @@ public class Scanner {
             // Autómata de reconocimiento de cadenas
             switch (estado) {
                 case 0:
+                    // Comienzo de una posible cadena.
                     if (c == '"') {
+                        flag = 1;
                         estado = 24;
                     }
                     break;
 
                 case 24:
+                    // Final de cadena, se procede a generar su token en el estado 25, asociando el
+                    // valor de la cadena sin las comillas.
                     if (c == '"') {
+                        flag = 1;
                         estado = 25;
-                    }else if(c == '\n'){
-                        estado = 26;
-                    }else{
+                    }
+                    // Se lanza la excepción en el caso de que se tenga una salto de línea.
+                    else if (c == '\n') {
+                        estado = 67;
+                        // Se permanece en mismo estado con cualquier otro carácter.
+                    } else {
+                        flag = 1;
                         estado = 24;
                         lexema += c;
                     }
                     break;
                 case 25:
-                    Token t = new Token(TipoToken.STRING, lexema, lexema);
+                    String lexemaConComillas = "\"" + lexema + "\"";
+                    Token t = new Token(TipoToken.STRING, lexemaConComillas, lexema);
                     tokens.add(t);
                     /*
                      * Para el caso de las cadenas, el atributo literal
                      * debe contener la cadena detectada, pero sin las comillas inicial y final.
                      */
-                    estado =90;
-                    break;
-                case 26:
-                    Interprete.error(i, "Existe Un Error de cerrar cadena");
+                    lexemaConComillas = "";
+                    estado = 90;
+
                     break;
             }
 
-            // Autómata de reconocimiento de símbolos
+            // Autómata de reconocimiento de símbolos (Operadores relacionales y otros).
             switch (estado) {
                 case 0:
+                    // Inicio de un operador mayor igual o mayor que.
                     if (c == '>') {
+                        flag = 1;
                         estado = 1;
                         lexema += c;
+                        // Inicio de un operador menor igual o menor que.
                     } else if (c == '<') {
+                        flag = 1;
                         estado = 4;
                         lexema += c;
+                        // Inicio de un operador igual
                     } else if (c == '=') {
+                        flag = 1;
                         estado = 7;
                         lexema += c;
+                        // Inicio de un operador negación o bang equal.
                     } else if (c == '!') {
+                        flag = 1;
                         estado = 10;
                         lexema += c;
                     }
                     break;
 
                 case 1:
+                    // Se avanza al estado 2 para generar el token del operador mayor igual.
                     if (c == '=') {
+                        flag = 1;
                         estado = 2;
                         lexema += c;
+                        // Se genera el token del operador mayor que.
                     } else {
                         Token t = new Token(TipoToken.GREATER, lexema);
                         tokens.add(t);
 
-                    estado =90;
-                       
+                        estado = 90;
+
                     }
                     break;
 
@@ -306,19 +341,22 @@ public class Scanner {
                     Token t = new Token(TipoToken.GREATER_EQUAL, lexema);
                     tokens.add(t);
 
-                    estado =90;
-                    
+                    estado = 90;
+
                     break;
 
                 case 4:
+                    // Se avanza al estado 5 para generar el token del operador menor igual.
                     if (c == '=') {
+                        flag = 1;
                         estado = 5;
                         lexema += c;
+                        // Se genera el token del operador menor que.
                     } else {
                         Token a = new Token(TipoToken.LESS, lexema);
                         tokens.add(a);
-                    estado =90;
-                      
+                        estado = 90;
+
                     }
                     break;
 
@@ -326,20 +364,22 @@ public class Scanner {
                     Token b = new Token(TipoToken.LESS_EQUAL, lexema);
                     tokens.add(b);
 
-                    estado =90;
-                 
-                    break;
+                    estado = 90;
 
+                    break;
+                // Se avanza al estado 8 para generar el token del operador equal.
                 case 7:
                     if (c == '=') {
+                        flag = 1;
                         estado = 8;
                         lexema += c;
+                        // Se genera el token del operador equal.
                     } else {
                         Token d = new Token(TipoToken.EQUAL, lexema);
                         tokens.add(d);
 
-                    estado =90;
-                     
+                        estado = 90;
+
                     }
                     break;
 
@@ -347,20 +387,23 @@ public class Scanner {
                     Token e = new Token(TipoToken.EQUAL_EQUAL, lexema);
                     tokens.add(e);
 
-                    estado =90;
-                   
+                    estado = 90;
+
                     break;
 
                 case 10:
+                    // Se avanza al estado 11 para generar el token del operador bang equal.
                     if (c == '=') {
+                        flag = 1;
                         estado = 11;
                         lexema += c;
+                        // Se genera el token del operador bang.
                     } else {
                         Token f = new Token(TipoToken.BANG, lexema);
                         tokens.add(f);
 
-                    estado =90;
-                      
+                        estado = 90;
+
                     }
                     break;
 
@@ -368,75 +411,98 @@ public class Scanner {
                     Token g = new Token(TipoToken.BANG_EQUAL, lexema);
                     tokens.add(g);
 
-                     estado =90;
-                    
+                    estado = 90;
+
                     break;
             }
 
             // Automata de reconocimiento de un solo caracter
-             switch (estado) {
-                 case 0:
-                     if (c == '+') {
-                         tokens.add(new Token(TipoToken.PLUS, String.valueOf(c)));
-                          estado = 31;
-                     } else if (c == '-') {
-                         tokens.add(new Token(TipoToken.MINUS, String.valueOf(c)));
-                          estado = 31;
-                     } else if (c == '*') {
-                         tokens.add(new Token(TipoToken.STAR, String.valueOf(c)));
-                          estado = 31;
-                     } else if (c == '/') {
-                         tokens.add(new Token(TipoToken.SLASH, String.valueOf(c)));
-                          estado = 31;
-                     } else if (c == '{') {
-                         tokens.add(new Token(TipoToken.LEFT_BRACE, String.valueOf(c)));
-                          estado = 31;
-                     } else if (c == '}') {
-                         tokens.add(new Token(TipoToken.RIGHT_BRACE, String.valueOf(c)));
-                          estado = 31;
-                     } else if (c == '(') {
-                         tokens.add(new Token(TipoToken.LEFT_PAREN, String.valueOf(c)));
-                          estado = 31;
-                     } else if (c == ')') {
-                         tokens.add(new Token(TipoToken.RIGHT_PAREN, String.valueOf(c)));
-                          estado = 31;
-                     } else if (c == ',') {
-                         tokens.add(new Token(TipoToken.COMMA, String.valueOf(c)));
-                          estado = 31;
-                     } else if (c == '.') {
-                         tokens.add(new Token(TipoToken.DOT, String.valueOf(c)));
-                          estado = 31;
-                     } else if (c == ';') {
-                         tokens.add(new Token(TipoToken.SEMICOLON, String.valueOf(c)));
-                          estado = 31;
-                     }
-                   
-                     break;
-             }
-        
-        
-        if(estado == 90){
-            i--;
-            lexema = "";
-            estado = 0;
-        }
-        else if(estado == 31 || estado == 29){
-            estado = 0;
-            lexema="";
-        }
-        else if(estado==32){
-            i--;
-           tokens.add(new Token(TipoToken.SLASH, String.valueOf(source.charAt(i))));
+            // Se crean los token para cada uno de los cáracteres pertenecientes a nuestra
+            // gramatica.
+            switch (estado) {
+                case 0:
+                    if (c == '+') {
+                        tokens.add(new Token(TipoToken.PLUS, String.valueOf(c)));
+                        estado = 31;
+                    } else if (c == '-') {
+                        tokens.add(new Token(TipoToken.MINUS, String.valueOf(c)));
+                        estado = 31;
+                    } else if (c == '*') {
+                        tokens.add(new Token(TipoToken.STAR, String.valueOf(c)));
+                        estado = 31;
+                    } else if (c == '/') {
+                        tokens.add(new Token(TipoToken.SLASH, String.valueOf(c)));
+                        estado = 31;
+                    } else if (c == '{') {
+                        tokens.add(new Token(TipoToken.LEFT_BRACE, String.valueOf(c)));
+                        estado = 31;
+                    } else if (c == '}') {
+                        tokens.add(new Token(TipoToken.RIGHT_BRACE, String.valueOf(c)));
+                        estado = 31;
+                    } else if (c == '(') {
+                        tokens.add(new Token(TipoToken.LEFT_PAREN, String.valueOf(c)));
+                        estado = 31;
+                    } else if (c == ')') {
+                        tokens.add(new Token(TipoToken.RIGHT_PAREN, String.valueOf(c)));
+                        estado = 31;
+                    } else if (c == ',') {
+                        tokens.add(new Token(TipoToken.COMMA, String.valueOf(c)));
+                        estado = 31;
+                    } else if (c == '.') {
+                        tokens.add(new Token(TipoToken.DOT, String.valueOf(c)));
+                        estado = 31;
+                    } else if (c == ';') {
+                        tokens.add(new Token(TipoToken.SEMICOLON, String.valueOf(c)));
+                        estado = 31;
+                    }
 
-           estado = 0;
-           lexema = "";
-        }
-        if (!(Character.isLetterOrDigit(c) || Character.isWhitespace(c))) {
-            if(!(c == '(' || c == '(' || c == '{' || c == '}' || c == ',' || c == '.' || c == '-' || c == '+' || c == 'x' || c == ';' || c == '/' || c == '*' || c == '!' || c == '=' || c == '>' || c == '<')){
-                    Interprete.error(c, "Carácter desconocido");
+                    break;
             }
-        } 
-    }
+            // Se decrementa el valor de 'i' para analizar los siguientes caracteres, se
+            // restablece la cadena asociada a lexema y se vuelve al estado 0.
+            if (estado == 90) {
+                i--;
+                flag = 1;
+                lexema = "";
+                estado = 0;
+                // se restablece la cadena asociada a lexema y se vuelve al estado 0.
+            } else if (estado == 31 || estado == 29) {
+                flag = 1;
+                estado = 0;
+                lexema = "";
+                // Se genera el token referente al SLASH y se le asocia el valor de NULL.
+            } else if (estado == 32) {
+                i--;
+                tokens.add(new Token(TipoToken.SLASH, String.valueOf(source.charAt(i))));
+                flag = 1;
+                estado = 0;
+                lexema = "";
+            }
+            // Se verifica el valor de la bandera para verificar si el carácter de la
+            // bandera es igual a 0, significa que no paso por ninguno de los casos
+            // anteriores de los automatas anteriores.
+            if (flag == 0) {
+                System.out.println("Caracter no valido:" + "" + c);
+                return tokens;
+
+            }
+            if (estado == 67) {
+                // Comillas no cerradas correctamente
+                throw new IllegalArgumentException("Error: Salto de linea entre comillas");
+            }
+            flag = 0;
+        }
+        if (estado == 27 || estado == 28)
+
+        {
+            // Comentario no cerrado, lanza una excepción
+            throw new IllegalArgumentException("Error:Comentario multilinea no cerrado");
+        }
+        if (estado == 24) {
+            // Comillas no cerradas correctamente
+            throw new IllegalArgumentException("Error: Comillas no cerradas correctamente");
+        }
+
         return tokens;
     }
 
