@@ -6,8 +6,8 @@ import java.util.Map;
 public class Scanner {
 
     private static final Map<String, TipoToken> palabrasReservadas;
-
-    static {
+    static 
+    {
         palabrasReservadas = new HashMap<>();
         palabrasReservadas.put("and", TipoToken.AND);
         palabrasReservadas.put("else", TipoToken.ELSE);
@@ -23,7 +23,6 @@ public class Scanner {
         palabrasReservadas.put("var", TipoToken.VAR);
         palabrasReservadas.put("while", TipoToken.WHILE);
     }
-
     private final String source;
 
     // Se crea un ArrayList de tokens llamado "tokens"
@@ -35,7 +34,6 @@ public class Scanner {
     }
 
     // En esta parte definiremos varios automatas que realizaran la tarea de identificar que lexema es
-
     // ANALIZADOR LEXICO O SCANNER
     public List<Token> scan() {
         // El estado inicial del automata es cero
@@ -43,7 +41,6 @@ public class Scanner {
         // Inicializamos una cadena llamada lexema
         // Definimos un caracter c, que formara parte del lexema
         // Declaramos una variable de control 'i' para el ciclo 'for'
-
         int estado = 0;
         int flag = 0;                                  
         String lexema = "";
@@ -55,7 +52,7 @@ public class Scanner {
             // 'c' obtiene el valor del caracter que se esta leyendo
             c = source.charAt(i);
         
-        // AUTOMATA PALABRAS RESERVADAS, IDENTIFICADOR Y NUMEROS (decimal, exponencial o entero)
+            // AUTOMATA PALABRAS RESERVADAS, IDENTIFICADOR Y NUMEROS (decimal, exponencial o entero)
             if (Character.isWhitespace(c)) {
                 //Si el caracter es un espacio, la bandera vale 1            
                 flag = 1;
@@ -507,6 +504,8 @@ public class Scanner {
         if (estado == 24)
             throw new IllegalArgumentException("Error: Comillas no cerradas correctamente");
 
+        // Al final agregamos el token de fin de archivo
+        tokens.add(new Token(TipoToken.EOF, "$"));
         return tokens;
     }
 }
