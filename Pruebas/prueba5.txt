@@ -1,0 +1,7 @@
+// Prueba 5:
+fun sumar(variable1, variable2){
+    return variabl1 + variable2;
+}
+
+/* Esto es un comentario
+multilinea*/if(2*2){}
