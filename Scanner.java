@@ -5,6 +5,10 @@ import java.util.Map;
 
 public class Scanner {
 
+    // Se crea un ArrayList de tokens llamado "tokens"
+    private final List<Token> tokens = new ArrayList<>();
+
+    private final String source;
     private static final Map<String, TipoToken> palabrasReservadas;
     static 
     {
@@ -23,32 +27,24 @@ public class Scanner {
         palabrasReservadas.put("var", TipoToken.VAR);
         palabrasReservadas.put("while", TipoToken.WHILE);
     }
-    private final String source;
-
-    // Se crea un ArrayList de tokens llamado "tokens"
-    private final List<Token> tokens = new ArrayList<>();
-
     // Metodo que escanea sobre un archivo
     public Scanner(String source) {
         this.source = source + " ";
     }
 
-    // En esta parte definiremos varios automatas que realizaran la tarea de identificar que lexema es
     // ANALIZADOR LEXICO O SCANNER
     public List<Token> scan() {
         // El estado inicial del automata es cero
-        // Declaramos una bandera de control para los mensajes de error de CARACTER INVÁLIDO
+        // Declaramos una bandera de control para los mensajes de error
         // Inicializamos una cadena llamada lexema
         // Definimos un caracter c, que formara parte del lexema
-        // Declaramos una variable de control 'i' para el ciclo 'for'
         int estado = 0;
         int flag = 0;                                  
         String lexema = "";
         char c;
-        int i = 0;
 
         // Hasta que recorra toda la cadena
-        for (i = 0; i < source.length(); i++) {
+        for (int i = 0; i < source.length(); i++) {
             // 'c' obtiene el valor del caracter que se esta leyendo
             c = source.charAt(i);
         
@@ -207,7 +203,7 @@ public class Scanner {
 
             }
 
-        // AUTOMATA COMENTARIOS (no generan token)
+            // AUTOMATA COMENTARIOS (no generan token)
             switch (estado) {
                 case 0:
                     if (c == '/') {
@@ -279,7 +275,7 @@ public class Scanner {
                 break;
             }
 
-        // AUTOMATA DE RECONOCIMIENTO DE CADENAS
+            // AUTOMATA DE RECONOCIMIENTO DE CADENAS
             switch (estado) {
                 // Las cadenas siempre estarán entre comillas '"'
                 case 0:
@@ -297,7 +293,6 @@ public class Scanner {
                     }
                     else if (c == '\n') {
                         // Si se lee un salto de linea, se generará un ERROR (estado 67)
-                        // flag = 0;
                         estado = 67;
                     } else {
                         /*
@@ -325,7 +320,7 @@ public class Scanner {
                 break;
             }
 
-        // AUTOMATA DE UNO O DOS CARACTERES
+            // AUTOMATA DE UNO O DOS CARACTERES
             switch (estado) {
                 case 0:
                     if (c == '>') {
@@ -460,7 +455,7 @@ public class Scanner {
                 break;
             }
         
-        // ESTADOS TERMINALES (reinician todo y se regresa un caracter atrás)
+            // ESTADOS TERMINALES (reinician todo y se regresa un caracter atrás)
             if (estado == 90) {
                 i--;
                 flag = 1;
@@ -480,32 +475,30 @@ public class Scanner {
                 lexema = "";
             }
         
-        // MENSAJES DE ERROR PARA CARACTERES
-        // Se generarán tokens hasta donde se hallo el error, entonces el programa finalizará
+            // MENSAJES DE ERROR PARA CARACTERES
+            // Se generarán tokens hasta donde se hallo el error, entonces el programa finalizará
             if (flag == 0) {
                 System.out.println("Caracter no valido:" + "" + c);
                 return tokens;
             }
-
-        // NO se generarán tokens, el programa unicamente arrojará el error detectado
+            // NO se generarán tokens, el programa unicamente arrojará el error detectado
             if (estado == 67)
-                // Comillas no cerradas correctamente
                 throw new IllegalArgumentException("Error: Salto de linea entre comillas");
             flag = 0;
         }
     
-    // MENSAJES DE ERROR PARA COMENTARIOS
-    // NO se generarán tokens, el programa unicamente arrojará el error detectado
+        // MENSAJES DE ERROR PARA COMENTARIOS
+        // NO se generarán tokens, el programa unicamente arrojará el error detectado
         if (estado == 27 || estado == 28)
             throw new IllegalArgumentException("Error:Comentario multilinea no cerrado");
 
-    // MENSAJE DE ERROR PARA CADENAS
-    // NO se generarán tokens, el programa unicamente arrojará el error detectado
+        // MENSAJE DE ERROR PARA CADENAS
+        // NO se generarán tokens, el programa unicamente arrojará el error detectado
         if (estado == 24)
             throw new IllegalArgumentException("Error: Comillas no cerradas correctamente");
 
         // Al final agregamos el token de fin de archivo
-        tokens.add(new Token(TipoToken.EOF, "$"));
+        tokens.add(new Token(TipoToken.EOF, "$",source.length()));
         return tokens;
     }
 }
