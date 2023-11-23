@@ -1,7 +1,0 @@
-/Prueba 2
-
-var a = 3;
-var b = 7;
-print a + b;
-print "Hola mundo";
-9.90
