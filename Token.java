@@ -29,7 +29,6 @@ public class Token {
             case TRUE:
             case FALSE:
             case NULL:
-            
                 return true;
             default:
                 return false;
