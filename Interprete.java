@@ -45,15 +45,21 @@ public class Interprete {
     }
 
     private static void ejecutar(String source) {
-        try{
+        try
+        {
             Scanner scanner = new Scanner(source);
             List<Token> tokens = scanner.scan();
 
-            for(Token token : tokens){
+            for(Token token : tokens)
+            {
                 System.out.println(token);
             }
+
+            Parser parser = new ASDR(tokens);
+            parser.parse();
         }
-        catch (Exception ex){
+        catch (Exception ex)
+        {
             ex.printStackTrace();
         }
 
