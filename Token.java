@@ -19,6 +19,23 @@ public class Token {
         //this.posicion = 0;
     }
 
+    public boolean isExpression()
+    {
+        switch(this.tipo)
+        {
+            case IDENTIFIER:
+            case NUMBER:
+            case STRING:
+            case TRUE:
+            case FALSE:
+            case NULL:
+            
+                return true;
+            default:
+                return false;
+        }
+    }
+
     @Override
     public boolean equals(Object o)
     {
