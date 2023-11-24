@@ -42,6 +42,21 @@ public class ASDR implements Parser
     private void DECLARATION()
     {
         if(hayErrores) return;
+        if(preanalisis.tipo==TipoToken.FUN)
+        {
+            FUN_DECL();
+            DECLARATION();
+        }
+        else if(preanalisis.tipo==TipoToken.VAR)
+        {
+            VAR_DECL();
+            DECLARATION();
+        }
+        else
+        {
+            STATEMENT();
+            DECLARATION();
+        }
     }
 
     //FUN_DECL -> fun FUNCTION
@@ -59,6 +74,14 @@ public class ASDR implements Parser
     private void FUNCTION()
     {
         if(hayErrores) return;
+        if(preanalisis.tipo==TipoToken.IDENTIFIER)
+        {
+            match(TipoToken.IDENTIFIER);
+            match(TipoToken.LEFT_PAREN);
+            PARAMETERS_OPC();
+            match(TipoToken.RIGHT_PAREN);
+            BLOCK();
+        }
     }
 
     /*
@@ -68,12 +91,18 @@ public class ASDR implements Parser
     private void PARAMETERS_OPC()
     {
         if(hayErrores) return;
+        PARAMETERS();
     }
 
     //PARAMETERS -> id PARAMETERS_2
     private void PARAMETERS()
     {
         if(hayErrores) return;
+        if(preanalisis.tipo==TipoToken.IDENTIFIER)
+        {
+            match(TipoToken.IDENTIFIER);
+            PARAMETERS_2();
+        }
     }
 
     /*
@@ -83,6 +112,12 @@ public class ASDR implements Parser
     private void PARAMETERS_2()
     {
         if(hayErrores) return;
+        if(preanalisis.tipo==TipoToken.COMMA)
+        {
+            match(TipoToken.COMMA);
+            match(TipoToken.IDENTIFIER);
+            PARAMETERS_2();
+        }
     }
 
     /*****************************************************************************************************/
@@ -111,58 +146,69 @@ public class ASDR implements Parser
             match(TipoToken.EQUAL);
             EXPRESSION();
         }
-        else
-        {
-            //Cadena vacia
-        }
     }
 
     //EXPRESSION -> ASSIGNMENT
     private void EXPRESSION()
     {
         if(hayErrores) return;
+        ASSIGNMENT();
     }
 
     //ASSIGNMENT -> LOGIC_OR ASSIGNMENT_OPC
     private void ASSIGNMENT()
     {
         if(hayErrores) return;
+        LOGIC_OR();
+        ASSIGNMENT_OPC();
     }
 
     //LOGIC_OR -> LOGIC_AND LOGIC_OR_2
     private void LOGIC_OR()
     {
         if(hayErrores) return;
+        LOGIC_AND();
+        LOGIC_OR_2();
     }
 
     //LOGIC_AND -> EQUALITY LOGIC_AND_2
     private void LOGIC_AND()
     {
         if(hayErrores) return;
+        EQUALITY();
+        LOGIC_AND_2();
     }
 
     //EQUALITY -> COMPARISON EQUALITY_2
     private void EQUALITY()
     {
         if(hayErrores) return;
+        COMPARISON();
+        EQUALITY_2();
     }
 
     //COMPARISON -> TERM COMPARISON_2
     private void COMPARISON()
     {
         if(hayErrores) return;
+        TERM();
+        COMPARISON_2();
     }
 
     //TERM -> FACTOR TERM_2
     private void TERM()
     {
         if(hayErrores) return;
+        FACTOR();
+        TERM_2();
     }
 
     //FACTOR -> UNARY FACTOR_2
     private void FACTOR()
     {
         if(hayErrores) return;
+        UNARY();
+        FACTOR_2();
     }
 
     /*
@@ -173,12 +219,26 @@ public class ASDR implements Parser
     private void UNARY()
     {
         if(hayErrores) return;
+        if(preanalisis.tipo==TipoToken.BANG)
+        {
+            match(TipoToken.BANG);
+            UNARY();
+        }
+        else if(preanalisis.tipo==TipoToken.MINUS)
+        {
+            match(TipoToken.MINUS);
+            UNARY();
+        }
+        else
+            CALL();
     }
 
     //CALL -> PRIMARY CALL_2
     private void CALL()
     {
         if(hayErrores) return;
+        PRIMARY();
+        CALL_2();
     }
 
     /*
@@ -193,6 +253,31 @@ public class ASDR implements Parser
     private void PRIMARY()
     {
         if(hayErrores) return;
+        if(preanalisis.isExpression())
+        {
+            if(preanalisis.tipo==TipoToken.TRUE)
+                match(TipoToken.TRUE);
+            if(preanalisis.tipo==TipoToken.FALSE)
+                match(TipoToken.FALSE);
+            if(preanalisis.tipo==TipoToken.NULL)
+                match(TipoToken.NULL);
+            if(preanalisis.tipo==TipoToken.NUMBER)
+                match(TipoToken.NUMBER);
+            if(preanalisis.tipo==TipoToken.STRING)
+                match(TipoToken.STRING);
+            if(preanalisis.tipo==TipoToken.IDENTIFIER)
+                match(TipoToken.IDENTIFIER);
+        }
+        else if(preanalisis.tipo==TipoToken.LEFT_PAREN)
+        {
+            match(TipoToken.LEFT_PAREN);
+            EXPRESSION();
+            match(TipoToken.RIGHT_PAREN);
+        }
+        else
+        {
+            hayErrores = true;
+        }
     }
 
     /*
@@ -202,6 +287,18 @@ public class ASDR implements Parser
     private void CALL_2()
     {
         if(hayErrores) return;
+        if(preanalisis.tipo==TipoToken.LEFT_PAREN)
+        {
+            match(TipoToken.LEFT_PAREN);
+            ARGUMENTS_OPC();
+            match(TipoToken.RIGHT_PAREN);
+            CALL_2();
+        }
+        else
+        {
+            hayErrores = true;
+            System.out.println("Se esperaba '('");
+        }
     }
 
     /*
@@ -211,6 +308,8 @@ public class ASDR implements Parser
     private void ARGUMENTS_OPC()
     {
         if(hayErrores) return;
+        EXPRESSION();
+        ARGUMENTS();
     }
 
     /*
@@ -220,6 +319,12 @@ public class ASDR implements Parser
     private void ARGUMENTS()
     {
         if(hayErrores) return;
+        if(preanalisis.tipo==TipoToken.COMMA)
+        {
+            match(TipoToken.COMMA);
+            EXPRESSION();
+            ARGUMENTS();
+        }
     }
 
     /*
@@ -230,6 +335,22 @@ public class ASDR implements Parser
     private void FACTOR_2()
     {
         if(hayErrores) return;
+        if(preanalisis.tipo==TipoToken.SLASH)
+        {
+            match(TipoToken.SLASH);
+            UNARY();
+            FACTOR_2();
+        }
+        else if(preanalisis.tipo==TipoToken.STAR)
+        {
+            match(TipoToken.STAR);
+            UNARY();
+            FACTOR_2();
+        }
+        else
+        {
+            hayErrores = true;
+        }
     }
 
     /*
@@ -240,6 +361,18 @@ public class ASDR implements Parser
     private void TERM_2()
     {
         if(hayErrores) return;
+        if(preanalisis.tipo==TipoToken.MINUS)
+        {
+            match(TipoToken.MINUS);
+            FACTOR();
+            TERM_2();
+        }
+        else if(preanalisis.tipo==TipoToken.PLUS)
+        {
+            match(TipoToken.PLUS);
+            FACTOR();
+            TERM_2();
+        }
     }
 
     /*
@@ -252,6 +385,30 @@ public class ASDR implements Parser
     private void COMPARISON_2()
     {
         if(hayErrores) return;
+        if(preanalisis.tipo==TipoToken.GREATER)
+        {
+            match(TipoToken.GREATER);
+            TERM();
+            COMPARISON_2();
+        }
+        else if(preanalisis.tipo==TipoToken.GREATER_EQUAL)
+        {
+            match(TipoToken.GREATER_EQUAL);
+            TERM();
+            COMPARISON_2();
+        }
+        else if(preanalisis.tipo==TipoToken.LESS)
+        {
+            match(TipoToken.LESS);
+            TERM();
+            COMPARISON_2();
+        }
+        else if(preanalisis.tipo==TipoToken.LESS_EQUAL)
+        {
+            match(TipoToken.LESS_EQUAL);
+            TERM();
+            COMPARISON_2();
+        }
     }
 
     /*
@@ -262,6 +419,18 @@ public class ASDR implements Parser
     private void EQUALITY_2()
     {
         if(hayErrores) return;
+        if(preanalisis.tipo==TipoToken.BANG_EQUAL)
+        {
+            match(TipoToken.BANG_EQUAL);
+            COMPARISON();
+            EQUALITY_2();
+        }
+        else if(preanalisis.tipo==TipoToken.EQUAL_EQUAL)
+        {
+            match(TipoToken.EQUAL_EQUAL);
+            COMPARISON();
+            EQUALITY_2();
+        }
     }
 
     /*
@@ -271,6 +440,12 @@ public class ASDR implements Parser
     private void LOGIC_AND_2()
     {
         if(hayErrores) return;
+        if(preanalisis.tipo==TipoToken.AND)
+        {
+            match(TipoToken.AND);
+            EQUALITY();
+            LOGIC_AND_2();
+        }
     }
 
     /*
@@ -280,6 +455,12 @@ public class ASDR implements Parser
     private void LOGIC_OR_2()
     {
         if(hayErrores) return;
+        if(preanalisis.tipo==TipoToken.OR)
+        {
+            match(TipoToken.OR);
+            LOGIC_AND();
+            LOGIC_OR_2();
+        }
     }
 
     /*
@@ -289,6 +470,11 @@ public class ASDR implements Parser
     private void ASSIGNMENT_OPC()
     {
         if(hayErrores) return;
+        if(preanalisis.tipo==TipoToken.EQUAL)
+        {
+            match(TipoToken.EQUAL);
+            EXPRESSION();
+        }
     }
 
     /*****************************************************************************************************/
