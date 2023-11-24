@@ -3,21 +3,21 @@ public class Token {
     final TipoToken tipo;
     final String lexema;
     final Object literal;
-    //final int posicion;
+    final int posicion;
 
-    public Token(TipoToken tipo, String lexema/*, int posicion*/) {
-        this.tipo = tipo;
-        this.lexema = lexema;
-        this.literal = null;
-        //this.posicion = posicion;
-    }
-
-    public Token(TipoToken tipo, String lexema, Object literal) {
+    public Token(TipoToken tipo, String lexema, Object literal, int posicion) {
         this.tipo = tipo;
         this.lexema = lexema;
         this.literal = literal;
-        //this.posicion = 0;
+        this.posicion = posicion;
     }
+
+    /*public Token(TipoToken tipo, String lexema, Object literal) {
+        this.tipo = tipo;
+        this.lexema = lexema;
+        this.literal = literal;
+        this.posicion = 0;
+    }*/
 
     public boolean isExpression()
     {
