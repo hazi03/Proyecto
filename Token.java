@@ -50,7 +50,6 @@ public class Token {
             case LESS_EQUAL:
             case GREATER:
             case GREATER_EQUAL:
-            case BANG:
             case BANG_EQUAL:
             case OR:
             case AND:
@@ -140,7 +139,6 @@ public class Token {
             case LESS_EQUAL:
             case GREATER:
             case GREATER_EQUAL:
-            case BANG:
             case BANG_EQUAL:
             case OR:
             case AND:
