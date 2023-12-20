@@ -57,6 +57,18 @@ public class Interprete {
 
             Parser parser = new ASDR(tokens);
             parser.parse();
+
+            Postfija generarPostfija = new Postfija(tokens);
+            List<Token> postfija = generarPostfija.convertir();
+
+            for(Token token : postfija)
+            {
+                System.out.println(token);
+            }
+
+            AST ast = new AST(postfija);
+            Arbol last = ast.generarAST();
+            last.recorrer();
         }
         catch (Exception ex)
         {
