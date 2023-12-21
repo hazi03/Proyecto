@@ -1,15 +1,7 @@
-/*
-* Prueba 4:
-* Codigo implementado
-*/
-var var1=2;
-var var2 = 3;
-var aux = 0;
-// Ciclo para calcular la serie de Fibonacci
-for(var i = 1; i<=10; i = i+1){
-    print var1 + var2;
-    aux = var1;
-    var1 = var2;
-    var2 = aux + var1;
+// Prueba 5:
+fun sumar(variable1, variable2){
+    return variabl1 + variable2;
 }
-if((2>=2)){{}}
+
+sumar(5,4);
+print "Fin";

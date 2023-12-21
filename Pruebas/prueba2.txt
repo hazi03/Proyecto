@@ -1,7 +1,6 @@
-/Prueba 2
+// Prueba 2:
+if(a < b){
+    print "Válido";
+}
 
-var a = 3;
-var b = 7;
-print a + b;
-print "Hola mundo";
-9.90
+print "Fin";
