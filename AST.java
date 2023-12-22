@@ -16,16 +16,21 @@ public class AST
     {
         Stack<Nodo> stackFathers = new Stack<>();
         Nodo root = new Nodo(null);
+
         stackFathers.push(root);
+
         Nodo father = root;
 
         for(Token t : postfija)
         {
             if(t.tipo == TipoToken.EOF)
+            {
                 break;
+            }
             if(t.isKeyword())
             {
                 Nodo n = new Nodo(t);
+
                 father = stackFathers.peek();
                 father.insertarSiguienteHijo(n);
                 stackFathers.push(n);
@@ -57,29 +62,35 @@ public class AST
                 else
                 {
                     Nodo n = stack.pop();
-                    if(father.getValue() != null && father.getValue().tipo == TipoToken.VAR)
-                    {
-                        if(n.getValue().lexema == "=")
-                            father.insertarHijos(n.getChildren());
-                        else
-                            father.insertarSiguienteHijo(n);
 
+                    if(father.getValue().tipo == TipoToken.VAR)
+                    {
+                        if(n.getValue().tipo == TipoToken.EQUAL)
+                        {
+                            father.insertarHijos(n.getChildren());
+                        }
+                        else
+                        {
+                            father.insertarSiguienteHijo(n);
+                        }
                         stackFathers.pop();
                         father = stackFathers.peek();
                     }
-                    else if(father.getValue() != null && father.getValue().tipo == TipoToken.PRINT)
+                    else if(father.getValue().tipo == TipoToken.PRINT)
                     {
                         father.insertarSiguienteHijo(n);
                         stackFathers.pop();
                         father = stackFathers.peek();
                     }
                     else
+                    {
                         father.insertarSiguienteHijo(n);
+                    }
                 }
             }
         }
 
-        Arbol last = new Arbol(root);
-        return last;
+        Arbol programa = new Arbol(root, null);
+        return programa;
     }
 }
