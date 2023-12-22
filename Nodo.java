@@ -6,7 +6,10 @@ public class Nodo
     private final Token value;
     private List<Nodo> children;
 
-    public Nodo(Token value) {this.value = value;}
+    public Nodo(Token value) 
+    {
+        this.value = value;
+    }
 
     public void insertarHijo(Nodo n)
     {
@@ -16,7 +19,9 @@ public class Nodo
             children.add(n);
         }
         else
+        {
             children.add(0,n);
+        }
     }
 
     public void insertarSiguienteHijo(Nodo n)
@@ -27,16 +32,22 @@ public class Nodo
             children.add(n);
         }
         else
+        {
             children.add(n);
+        }
     }
 
     public void insertarHijos(List<Nodo> nodosHijos)
     {
         if(children == null)
+        {
             children = new ArrayList<>();
+        }
 
         for(Nodo n : nodosHijos)
+        {
             children.add(n);
+        }
     }
 
     public Token getValue() {return value;}
