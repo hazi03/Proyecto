@@ -23,8 +23,11 @@ public class Postfija
         for(int i = 0; i < infija.size(); i++)
         {
             Token t = infija.get(i);
+
             if(t.tipo == TipoToken.EOF)
+            {
                 break;
+            }
 
             if(t.isKeyword())
             {
@@ -36,9 +39,13 @@ public class Postfija
                 }
             }
             else if(t.isExpression())
+            {
                 postfija.add(t);
+            }
             else if(t.tipo == TipoToken.LEFT_PAREN)
+            {
                 pila.push(t);
+            }
             else if(t.tipo == TipoToken.RIGHT_PAREN)
             {
                 while(!pila.isEmpty() && pila.peek().tipo != TipoToken.LEFT_PAREN)
@@ -47,9 +54,13 @@ public class Postfija
                     postfija.add(temp);
                 }
                 if(controlStrucuture)
+                {
                     postfija.add(new Token(TipoToken.SEMICOLON,";",null,0));
+                }
                 if(!pila.isEmpty() && pila.peek().tipo == TipoToken.LEFT_PAREN)
+                {
                     pila.pop();
+                }
             }
             else if(t.isOperator())
             {
@@ -70,11 +81,17 @@ public class Postfija
                 postfija.add(t);
             }
             else if(t.tipo == TipoToken.LEFT_BRACE)
+            {
                 pila.push(t);
+            }
             else if(t.tipo == TipoToken.RIGHT_BRACE && controlStrucuture)
             {
+                // Verificar si hay un ELSE
                 if(infija.get(i + 1).tipo == TipoToken.ELSE)
+                {
+                    // Se saca '}' de la pila
                     pila.pop();
+                }
                 else
                 {
                     pila.pop();
@@ -82,7 +99,9 @@ public class Postfija
                     controlStructureStack.pop();
                     
                     if(controlStructureStack.isEmpty())
+                    {
                         controlStrucuture = false;
+                    }
                 }
             }
         }
@@ -96,7 +115,6 @@ public class Postfija
             controlStructureStack.pop();
             postfija.add(new Token(TipoToken.SEMICOLON,";",null,0));
         }
-
         return postfija;
     }
 }
