@@ -27,7 +27,9 @@ public class ASDR implements Parser
             return true;
         }
         else
+        {
             System.out.println("Se encontraron errores");
+        }
         return false;
     }
 
@@ -45,7 +47,11 @@ public class ASDR implements Parser
     */
     private void DECLARATION()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        }
+
         if(preanalisis.tipo==TipoToken.FUN)
         {
             FUN_DECL();
@@ -56,7 +62,11 @@ public class ASDR implements Parser
             VAR_DECL();
             DECLARATION();
         }
-        else
+        else if(preanalisis.tipo==TipoToken.IF || preanalisis.tipo==TipoToken.WHILE || preanalisis.tipo==TipoToken.PRINT ||
+                preanalisis.tipo==TipoToken.RETURN || preanalisis.tipo==TipoToken.FOR || preanalisis.tipo==TipoToken.LEFT_BRACE ||
+                preanalisis.tipo==TipoToken.BANG_EQUAL || preanalisis.tipo==TipoToken.MINUS || preanalisis.tipo==TipoToken.TRUE ||
+                preanalisis.tipo==TipoToken.FALSE || preanalisis.tipo==TipoToken.NULL || preanalisis.tipo==TipoToken.NUMBER ||
+                preanalisis.tipo==TipoToken.STRING || preanalisis.tipo==TipoToken.IDENTIFIER || preanalisis.tipo==TipoToken.LEFT_PAREN)
         {
             STATEMENT();
             DECLARATION();
@@ -66,6 +76,11 @@ public class ASDR implements Parser
     //FUN_DECL -> fun FUNCTION
     private void FUN_DECL()
     {
+        if(hayErrores)
+        {
+            return;
+        }
+
         if(preanalisis.tipo==TipoToken.FUN)
         {
             match(TipoToken.FUN);
@@ -81,6 +96,11 @@ public class ASDR implements Parser
     //FUNCTION -> id ( PARAMETERS_OPC ) BLOCK
     private void FUNCTION()
     {
+        if(hayErrores)
+        {
+            return;
+        }
+
         if(preanalisis.tipo==TipoToken.IDENTIFIER)
         {
             match(TipoToken.IDENTIFIER);
@@ -102,13 +122,22 @@ public class ASDR implements Parser
     */
     private void PARAMETERS_OPC()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         PARAMETERS();
     }
 
     //PARAMETERS -> id PARAMETERS_2
     private void PARAMETERS()
     {
+        if(hayErrores)
+        {
+            return;
+        }
+
         if(preanalisis.tipo==TipoToken.IDENTIFIER)
         {
             match(TipoToken.IDENTIFIER);
@@ -127,7 +156,11 @@ public class ASDR implements Parser
     */
     private void PARAMETERS_2()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         if(preanalisis.tipo==TipoToken.COMMA)
         {
             match(TipoToken.COMMA);
@@ -160,7 +193,11 @@ public class ASDR implements Parser
     */
     private void VAR_INIT()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         if(preanalisis.tipo==TipoToken.EQUAL)
         {
             match(TipoToken.EQUAL);
@@ -171,14 +208,22 @@ public class ASDR implements Parser
     //EXPRESSION -> ASSIGNMENT
     private void EXPRESSION()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         ASSIGNMENT();
     }
 
     //ASSIGNMENT -> LOGIC_OR ASSIGNMENT_OPC
     private void ASSIGNMENT()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         LOGIC_OR();
         ASSIGNMENT_OPC();
     }
@@ -186,7 +231,11 @@ public class ASDR implements Parser
     //LOGIC_OR -> LOGIC_AND LOGIC_OR_2
     private void LOGIC_OR()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         LOGIC_AND();
         LOGIC_OR_2();
     }
@@ -194,7 +243,11 @@ public class ASDR implements Parser
     //LOGIC_AND -> EQUALITY LOGIC_AND_2
     private void LOGIC_AND()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         EQUALITY();
         LOGIC_AND_2();
     }
@@ -202,7 +255,11 @@ public class ASDR implements Parser
     //EQUALITY -> COMPARISON EQUALITY_2
     private void EQUALITY()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         COMPARISON();
         EQUALITY_2();
     }
@@ -210,7 +267,11 @@ public class ASDR implements Parser
     //COMPARISON -> TERM COMPARISON_2
     private void COMPARISON()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        }
+
         TERM();
         COMPARISON_2();
     }
@@ -218,7 +279,11 @@ public class ASDR implements Parser
     //TERM -> FACTOR TERM_2
     private void TERM()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         FACTOR();
         TERM_2();
     }
@@ -226,7 +291,11 @@ public class ASDR implements Parser
     //FACTOR -> UNARY FACTOR_2
     private void FACTOR()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         UNARY();
         FACTOR_2();
     }
@@ -248,14 +317,27 @@ public class ASDR implements Parser
             match(TipoToken.MINUS);
             UNARY();
         }
-        else if(preanalisis.isExpression())
+        else if(preanalisis.tipo==TipoToken.TRUE || preanalisis.tipo==TipoToken.FALSE || preanalisis.tipo==TipoToken.NULL ||
+                preanalisis.tipo==TipoToken.NUMBER || preanalisis.tipo==TipoToken.STRING || preanalisis.tipo==TipoToken.IDENTIFIER ||
+                preanalisis.tipo==TipoToken.LEFT_PAREN)
+        {
             CALL();
+        }
+        else
+        {
+            hayErrores = true;
+            System.out.println("Error. Posicion: "+preanalisis.posicion+".");
+        }
     }
 
     //CALL -> PRIMARY CALL_2
     private void CALL()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         PRIMARY();
         CALL_2();
     }
@@ -271,20 +353,34 @@ public class ASDR implements Parser
     */
     private void PRIMARY()
     {
-        if(preanalisis.isExpression())
+        if(hayErrores)
         {
-            if(preanalisis.tipo==TipoToken.TRUE)
-                match(TipoToken.TRUE);
-            if(preanalisis.tipo==TipoToken.FALSE)
-                match(TipoToken.FALSE);
-            if(preanalisis.tipo==TipoToken.NULL)
-                match(TipoToken.NULL);
-            if(preanalisis.tipo==TipoToken.NUMBER)
-                match(TipoToken.NUMBER);
-            if(preanalisis.tipo==TipoToken.STRING)
-                match(TipoToken.STRING);
-            if(preanalisis.tipo==TipoToken.IDENTIFIER)
-                match(TipoToken.IDENTIFIER);
+            return;
+        }
+
+        if(preanalisis.tipo==TipoToken.TRUE)
+        {
+            match(TipoToken.TRUE);
+        }
+        if(preanalisis.tipo==TipoToken.FALSE)
+        {
+            match(TipoToken.FALSE);
+        }
+        if(preanalisis.tipo==TipoToken.NULL)
+        {
+            match(TipoToken.NULL);
+        }
+        if(preanalisis.tipo==TipoToken.NUMBER)
+        {
+            match(TipoToken.NUMBER);
+        }
+        if(preanalisis.tipo==TipoToken.STRING)
+        {
+            match(TipoToken.STRING);
+        }
+        if(preanalisis.tipo==TipoToken.IDENTIFIER)
+        {
+            match(TipoToken.IDENTIFIER);
         }
         else if(preanalisis.tipo==TipoToken.LEFT_PAREN)
         {
@@ -305,7 +401,11 @@ public class ASDR implements Parser
     */
     private void CALL_2()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         if(preanalisis.tipo==TipoToken.LEFT_PAREN)
         {
             match(TipoToken.LEFT_PAREN);
@@ -321,9 +421,18 @@ public class ASDR implements Parser
     */
     private void ARGUMENTS_OPC()
     {
-        if(hayErrores) return;
-        EXPRESSION();
-        ARGUMENTS();
+        if(hayErrores)
+        {
+            return;
+        }
+
+        if(preanalisis.tipo==TipoToken.BANG_EQUAL || preanalisis.tipo==TipoToken.MINUS || preanalisis.tipo==TipoToken.TRUE ||
+           preanalisis.tipo==TipoToken.FALSE || preanalisis.tipo==TipoToken.NULL || preanalisis.tipo==TipoToken.NUMBER ||
+           preanalisis.tipo==TipoToken.STRING || preanalisis.tipo==TipoToken.IDENTIFIER || preanalisis.tipo==TipoToken.LEFT_PAREN)
+        {
+            EXPRESSION();
+            ARGUMENTS();
+        }
     }
 
     /*
@@ -332,7 +441,11 @@ public class ASDR implements Parser
     */
     private void ARGUMENTS()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        }
+
         if(preanalisis.tipo==TipoToken.COMMA)
         {
             match(TipoToken.COMMA);
@@ -348,7 +461,11 @@ public class ASDR implements Parser
     */
     private void FACTOR_2()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         if(preanalisis.tipo==TipoToken.SLASH)
         {
             match(TipoToken.SLASH);
@@ -370,7 +487,11 @@ public class ASDR implements Parser
     */
     private void TERM_2()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         if(preanalisis.tipo==TipoToken.MINUS)
         {
             match(TipoToken.MINUS);
@@ -394,7 +515,11 @@ public class ASDR implements Parser
     */
     private void COMPARISON_2()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         if(preanalisis.tipo==TipoToken.GREATER)
         {
             match(TipoToken.GREATER);
@@ -428,7 +553,11 @@ public class ASDR implements Parser
     */
     private void EQUALITY_2()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         if(preanalisis.tipo==TipoToken.BANG_EQUAL)
         {
             match(TipoToken.BANG_EQUAL);
@@ -464,7 +593,11 @@ public class ASDR implements Parser
     */
     private void LOGIC_OR_2()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         if(preanalisis.tipo==TipoToken.OR)
         {
             match(TipoToken.OR);
@@ -479,7 +612,11 @@ public class ASDR implements Parser
     */
     private void ASSIGNMENT_OPC()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        } 
+
         if(preanalisis.tipo==TipoToken.EQUAL)
         {
             match(TipoToken.EQUAL);
@@ -499,20 +636,41 @@ public class ASDR implements Parser
     */
     private void STATEMENT()
     {
-        if(preanalisis.isExpression())
+        if(hayErrores)
+        {
+            return;
+        }
+
+        if(preanalisis.tipo==TipoToken.BANG_EQUAL || preanalisis.tipo==TipoToken.MINUS || preanalisis.tipo==TipoToken.TRUE ||
+           preanalisis.tipo==TipoToken.FALSE || preanalisis.tipo==TipoToken.NULL || preanalisis.tipo==TipoToken.NUMBER ||
+           preanalisis.tipo==TipoToken.STRING || preanalisis.tipo==TipoToken.IDENTIFIER || preanalisis.tipo==TipoToken.LEFT_PAREN)
+        {
             EXPR_STMT();
+        }     
         else if(preanalisis.tipo==TipoToken.FOR)
+        {
             FOR_STMT();
+        }
         else if(preanalisis.tipo==TipoToken.IF)
+        {
             IF_STMT();
+        }
         else if(preanalisis.tipo==TipoToken.PRINT)
+        {
             PRINT_STMT();
+        }
         else if(preanalisis.tipo==TipoToken.RETURN)
+        {
             RETURN_STMT();
+        }
         else if(preanalisis.tipo==TipoToken.WHILE)
+        {
             WHILE_STMT();
+        }
         else if(preanalisis.tipo==TipoToken.LEFT_BRACE)
+        {
             BLOCK();
+        }
         else
         {
             hayErrores = true;
@@ -522,14 +680,22 @@ public class ASDR implements Parser
     //EXPR_STMT -> EXPRESSION ;
     private void EXPR_STMT()
     {
-        if(hayErrores) return;
+        if(hayErrores) 
+        {
+            return;
+        }
         EXPRESSION();
         match(TipoToken.SEMICOLON);
     }
 
     //FOR_STMT -> for ( FOR_STMT_1 FOR_STMT_2 FOR_STMT_3 ) STATEMENT
     private void FOR_STMT()
-    {
+    {   
+        if(hayErrores)
+        {
+            return;
+        }
+
         if(preanalisis.tipo==TipoToken.FOR)
         {
             match(TipoToken.FOR);
@@ -554,12 +720,25 @@ public class ASDR implements Parser
     */
     private void FOR_STMT_1()
     {
+        if(hayErrores)
+        {
+            return;
+        }
+
         if(preanalisis.tipo==TipoToken.VAR)
+        {
             VAR_DECL();
-        else if(preanalisis.isExpression())
+        }
+        else if(preanalisis.tipo==TipoToken.BANG_EQUAL || preanalisis.tipo==TipoToken.MINUS || preanalisis.tipo==TipoToken.TRUE ||
+                preanalisis.tipo==TipoToken.FALSE || preanalisis.tipo==TipoToken.NULL || preanalisis.tipo==TipoToken.NUMBER ||
+                preanalisis.tipo==TipoToken.STRING || preanalisis.tipo==TipoToken.IDENTIFIER || preanalisis.tipo==TipoToken.LEFT_PAREN)
+        {
             EXPR_STMT();
+        }
         else if(preanalisis.tipo==TipoToken.SEMICOLON)
+        {
             match(TipoToken.SEMICOLON);
+        }
         else
         {
             hayErrores = true;
@@ -573,13 +752,17 @@ public class ASDR implements Parser
     */
     private void FOR_STMT_2()
     {
-        if(preanalisis.isExpression())
+        if(preanalisis.tipo==TipoToken.BANG_EQUAL || preanalisis.tipo==TipoToken.MINUS || preanalisis.tipo==TipoToken.TRUE ||
+           preanalisis.tipo==TipoToken.FALSE || preanalisis.tipo==TipoToken.NULL || preanalisis.tipo==TipoToken.NUMBER ||
+           preanalisis.tipo==TipoToken.STRING || preanalisis.tipo==TipoToken.IDENTIFIER || preanalisis.tipo==TipoToken.LEFT_PAREN)
         {
             EXPRESSION();
             match(TipoToken.SEMICOLON);
         }
         else if(preanalisis.tipo==TipoToken.SEMICOLON)
+        {
             match(TipoToken.SEMICOLON);
+        }
         else
         {
             hayErrores = true;
@@ -593,14 +776,27 @@ public class ASDR implements Parser
     */
     private void FOR_STMT_3()
     {
-        if(hayErrores) return;
-        if(preanalisis.isExpression())
+        if(hayErrores)
+        {
+            return;
+        } 
+
+        if(preanalisis.tipo==TipoToken.BANG_EQUAL || preanalisis.tipo==TipoToken.MINUS || preanalisis.tipo==TipoToken.TRUE ||
+           preanalisis.tipo==TipoToken.FALSE || preanalisis.tipo==TipoToken.NULL || preanalisis.tipo==TipoToken.NUMBER ||
+           preanalisis.tipo==TipoToken.STRING || preanalisis.tipo==TipoToken.IDENTIFIER || preanalisis.tipo==TipoToken.LEFT_PAREN)
+        {
             EXPRESSION();
+        }
     }
 
     //IF_STMT -> if ( EXPRESSION ) STATEMENT ELSE_STATEMENT
     private void IF_STMT()
     {
+        if(hayErrores)
+        {
+            return;
+        }
+
         if(preanalisis.tipo==TipoToken.IF)
         {
             match(TipoToken.IF);
@@ -623,7 +819,11 @@ public class ASDR implements Parser
     */
     private void ELSE_STATEMENT()
     {
-        if(hayErrores) return;
+        if(hayErrores)
+        {
+            return;
+        }
+
         if(preanalisis.tipo==TipoToken.ELSE)
         {
             match(TipoToken.ELSE);
@@ -634,6 +834,11 @@ public class ASDR implements Parser
     //PRINT_STMT -> print EXPRESSION ;
     private void PRINT_STMT()
     {
+        if(hayErrores)
+        {
+            return;
+        }
+
         if(preanalisis.tipo==TipoToken.PRINT)
         {
             match(TipoToken.PRINT);
@@ -650,6 +855,11 @@ public class ASDR implements Parser
     //RETURN_STMT -> return RETURN_EXP_OPC ;
     private void RETURN_STMT()
     {
+        if(hayErrores)
+        {
+            return;
+        }
+
         if(preanalisis.tipo==TipoToken.RETURN)
         {
             match(TipoToken.RETURN);
@@ -669,8 +879,14 @@ public class ASDR implements Parser
     */
     private void RETURN_EXP_OPC()
     {
-        if(hayErrores) return;
-        if(preanalisis.isExpression())
+        if(hayErrores)
+        {
+            return;
+        } 
+
+        if(preanalisis.tipo==TipoToken.BANG_EQUAL || preanalisis.tipo==TipoToken.MINUS || preanalisis.tipo==TipoToken.TRUE ||
+           preanalisis.tipo==TipoToken.FALSE || preanalisis.tipo==TipoToken.NULL || preanalisis.tipo==TipoToken.NUMBER ||
+           preanalisis.tipo==TipoToken.STRING || preanalisis.tipo==TipoToken.IDENTIFIER || preanalisis.tipo==TipoToken.LEFT_PAREN)
         {
             EXPRESSION();
         }
@@ -713,6 +929,10 @@ public class ASDR implements Parser
     /******************************************************************************************************/
     private void match(TipoToken tipoToken)
     {
+        if(hayErrores)
+        {
+            return;
+        }
         if(preanalisis.tipo==tipoToken)
         {
             i++;
