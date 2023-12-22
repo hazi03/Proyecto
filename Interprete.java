@@ -50,10 +50,10 @@ public class Interprete {
             Scanner scanner = new Scanner(source);
             List<Token> tokens = scanner.scan();
 
-            /*for(Token token : tokens)
+            for(Token token : tokens)
             {
                 System.out.println(token);
-            }*/
+            }
             
             Parser parser = new ASDR(tokens);
             parser.parse();
