@@ -18,14 +18,23 @@ public class Aritmetico
     {
         if(n.getChildren() == null)
         {
-            if(n.getValue().tipo == TipoToken.NUMBER)
+            if(n.getValue().tipo == TipoToken.NUMBER || n.getValue().tipo == TipoToken.STRING)
+            {
                 return n.getValue().literal;
-            else if(n.getValue().tipo == TipoToken.STRING)
-                return n.getValue().lexema;
+            }
             else if(n.getValue().tipo == TipoToken.IDENTIFIER)
-                return tablaSimbolos.obtener(n.getValue().lexema);
+            {
+                String nombreVariable = n.getValue().lexema;
+                Object valor = tablaSimbolos.obtener(nombreVariable);
+                if(valor == null)
+                {
+                    throw new RuntimeException("ERROR. Variable inexistente.");
+                }
+                return valor;
+            }
         }
 
+        // Se asume por simplicidad que la lista de hijos del nodo solo tiene dos elementos
         Nodo left = n.getChildren().get(0);
         Nodo right = n.getChildren().get(1);
 
@@ -34,24 +43,22 @@ public class Aritmetico
 
         if(leftRes instanceof Double && rightRes instanceof Double)
         {
-            double leftValue = (Double) leftRes;
-            double rightValue = (Double) rightRes;
-            switch (n.getValue().tipo) {
+            switch (n.getValue().tipo) 
+            {
                 case PLUS:
-                    return leftValue + rightValue;
+                    return ((Double) leftRes + (Double) rightRes);
                 case MINUS:
-                    return leftValue - rightValue;
+                    return ((Double) leftRes - (Double) rightRes);
                 case STAR:
-                    return leftValue * rightValue;
+                    return ((Double) leftRes * (Double) rightRes);
                 case SLASH:
-                    if(rightValue != 0)
-                        return leftValue / rightValue;
+                    if(((Double) rightRes) != 0)
+                        return ((Double) leftRes / (Double) rightRes);
                     else
                     {
-                        System.out.println("ERROR. Division entre 0.");
-                        return null;
+                        throw new RuntimeException("ERROR. Division entre cero.");
                     }
-                case EQUAL:
+                /*case EQUAL:
                     return (Double) rightValue;
                 case EQUAL_EQUAL:
                     return (Boolean) (leftValue == rightValue);
@@ -64,34 +71,33 @@ public class Aritmetico
                 case GREATER_EQUAL:
                     return (Boolean) (leftValue >= rightValue);
                 case BANG_EQUAL:
-                    return (Boolean) (leftValue != rightValue);
+                    return (Boolean) (leftValue != rightValue);*/
                 default:
                     break;
             }
         }
         else if(leftRes instanceof String && rightRes instanceof String)
         {
-            String leftValue = (String) leftRes;
-            String rightValue = (String) rightRes;
-
             if(n.getValue().tipo == TipoToken.PLUS)
-                return leftValue + rightValue;
+            {
+                return ((String) leftRes + (String) rightRes);
+            }
         }
         else if(leftRes instanceof Boolean && rightRes instanceof Boolean)
         {
-            Boolean leftValue = (Boolean) leftRes;
-            Boolean rightValue = (Boolean) rightRes;
-
             if(n.getValue().tipo == TipoToken.OR)
-                return leftValue || rightValue;
+            {
+                return ((Boolean) leftRes || (Boolean) rightRes);
+            }
             if(n.getValue().tipo == TipoToken.AND)
-                return leftValue && rightValue;
+            {
+                return ((Boolean) leftRes && (Boolean) rightRes);
+            } 
         }
         else
         {
-            System.out.println("ERROR. Los operandos "+leftRes+" y "+rightRes+" no son del mismo tipo de dato.");
-            return null;
+            throw new RuntimeException("ERROR. Los operandos " + leftRes + " y " + rightRes + " no son del mismo tipo de dato.");
         }
-        return null;
+        throw new RuntimeException("ERROR. Operacion no valida.");
     }
 }
