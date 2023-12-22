@@ -50,16 +50,16 @@ public class Interprete {
             Scanner scanner = new Scanner(source);
             List<Token> tokens = scanner.scan();
 
-            for(Token token : tokens)
+            /*for(Token token : tokens)
             {
                 System.out.println(token);
-            }
+            }*/
             
             Parser parser = new ASDR(tokens);
             parser.parse();
 
-            Postfija generarPostfija = new Postfija(tokens);
-            List<Token> postfija = generarPostfija.convertir();
+            Postfija gpf = new Postfija(tokens);
+            List<Token> postfija = gpf.convertir();
 
             /*for(Token token : postfija)
             {
@@ -67,8 +67,8 @@ public class Interprete {
             }*/
 
             AST ast = new AST(postfija);
-            Arbol last = ast.generarAST();
-            last.recorrer();
+            Arbol programa = ast.generarAST();
+            programa.recorrer();
         }
         catch (Exception ex)
         {
