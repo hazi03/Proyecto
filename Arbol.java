@@ -2,17 +2,116 @@ public class Arbol
 {
     private final Nodo root;
     private final TablaSimbolos tablaSimbolos;
-    private Boolean state;
+    // private Boolean state;
     
-    public Arbol(Nodo root)
+    public Arbol(Nodo root, TablaSimbolos tablaSimbolos)
     {
         this.root = root;
-        this.tablaSimbolos = new TablaSimbolos();
+        this.tablaSimbolos = tablaSimbolos;
     }
 
     public void recorrer()
     {
-        for(Nodo n : root.getChildren())
+        recorrerNodo(root);
+    }
+
+    public void recorrerNodo(Nodo nodo)
+    {
+        if(nodo.getValue() == null)
+        {
+            return;
+        }
+
+        Token t = nodo.getValue();
+        switch (t.tipo) 
+        {
+            case PLUS:
+            case MINUS:
+            case STAR:
+            case SLASH:
+                Aritmetico solver = new Aritmetico(nodo, tablaSimbolos);
+                Object res = solver.solve();
+
+                System.out.println(res);
+                break;
+
+            case VAR:
+                // String nombreVar = nodo.getChildren().get(0).getValue().lexema;
+                Token valorToken = nodo.getChildren().get(1).getValue();
+                Object valor = null;
+
+                if(valorToken.tipo == TipoToken.NUMBER)
+                {
+                    valor = Double.parseDouble(valorToken.lexema);
+                }
+                else if(valorToken.tipo == TipoToken.STRING)
+                {
+                    valor = valorToken.lexema;
+                }
+                break;
+
+            case PRINT:
+                Nodo expresion = nodo.getChildren().get(0);
+                Aritmetico print = new Aritmetico(expresion, tablaSimbolos);
+                Object printRes = print.solve();
+
+                System.out.println(printRes);
+                break;
+        
+            case WHILE:
+                Nodo condicionDeWhile = nodo.getChildren().get(0);
+                Nodo cuerpoDeWhile = nodo.getChildren().get(1);
+                Aritmetico whileSolver = new Aritmetico(condicionDeWhile, tablaSimbolos);
+                boolean whileRes = (boolean) whileSolver.solve();
+
+                while(whileRes)
+                {
+                    recorrerNodo(cuerpoDeWhile);
+                    whileSolver = new Aritmetico(condicionDeWhile, tablaSimbolos);
+                    whileRes = (boolean) whileSolver.solve();
+                }
+                break;
+
+            case FOR:
+                Nodo inicioDeFor = nodo.getChildren().get(0);
+                Nodo condicionDeFor = nodo.getChildren().get(1);
+                Nodo updateDeFor = nodo.getChildren().get(2);
+                Nodo cuerpoDeFor = nodo.getChildren().get(3);
+
+                recorrerNodo(inicioDeFor);
+                Aritmetico solverCondicionFor = new Aritmetico(condicionDeFor, tablaSimbolos);
+                boolean forRes = (boolean) solverCondicionFor.solve();
+                while(forRes)
+                {
+                    recorrerNodo(cuerpoDeFor);
+                    recorrerNodo(updateDeFor);
+                    solverCondicionFor = new Aritmetico(condicionDeFor, tablaSimbolos);
+                    forRes = (boolean) solverCondicionFor.solve();
+                }
+                break;
+        
+            case IF:
+                Nodo condicionDeIf = nodo.getChildren().get(0);
+                Nodo cuerpoDeIf = nodo.getChildren().get(1);
+
+                Aritmetico solverCondicionIf = new Aritmetico(condicionDeIf, tablaSimbolos);
+                boolean ifRes = (boolean) solverCondicionIf.solve();
+                if(ifRes)
+                {
+                    recorrerNodo(cuerpoDeIf);
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        for (Nodo n : nodo.getChildren())
+        {
+            recorrerNodo(n);
+        }
+
+        /*for(Nodo n : root.getChildren())
         {
             Token t = n.getValue();
             switch (t.tipo) 
@@ -138,17 +237,14 @@ public class Arbol
                     break;
 
                 case FOR:
-                    /* Inicializacion */
                     Nodo inicio = n.getChildren().get(0);
                     Nodo name = inicio.getChildren().get(0);
                     Nodo value = inicio.getChildren().get(1);
                     tablaSimbolos.asignar(name.getValue().lexema, value.getValue().literal);
 
-                    /* Condicion */
                     Nodo con = n.getChildren().get(1);
                     Aritmetico solveCon = new Aritmetico(con, this.tablaSimbolos);
 
-                    /* Actualizacion */
                     Nodo update = n.getChildren().get(2);
                     Aritmetico solveUpdate = new Aritmetico(update, this.tablaSimbolos);
                     Object resCon = solveCon.solve();
@@ -304,6 +400,6 @@ public class Arbol
                 default:
                     break;
             }
-        }
+        }*/
     }
 }
