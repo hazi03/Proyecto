@@ -55,7 +55,7 @@ public class Postfija
                 }
                 if(controlStrucuture)
                 {
-                    postfija.add(new Token(TipoToken.SEMICOLON,";",null,0));
+                    postfija.add(new Token(TipoToken.SEMICOLON,";"));
                 }
                 if(!pila.isEmpty() && pila.peek().tipo == TipoToken.LEFT_PAREN)
                 {
@@ -95,7 +95,7 @@ public class Postfija
                 else
                 {
                     pila.pop();
-                    postfija.add(new Token(TipoToken.SEMICOLON,";",null,0));
+                    postfija.add(new Token(TipoToken.SEMICOLON,";"));
                     controlStructureStack.pop();
                     
                     if(controlStructureStack.isEmpty())
