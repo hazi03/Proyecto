@@ -12,12 +12,26 @@ public class Token {
         this.posicion = posicion;
     }
 
-    /*public Token(TipoToken tipo, String lexema, Object literal) {
+    public Token(TipoToken tipo, String lexema) {
+        this.tipo = tipo;
+        this.lexema = lexema;
+        this.literal = null;
+        this.posicion = 0;
+    }
+
+    public Token(TipoToken tipo, String lexema, Object literal) {
         this.tipo = tipo;
         this.lexema = lexema;
         this.literal = literal;
         this.posicion = 0;
-    }*/
+    }
+
+    public Token(TipoToken tipo, String lexema, int posicion) {
+        this.tipo = tipo;
+        this.lexema = lexema;
+        this.literal = null;
+        this.posicion = posicion;
+    }
 
     /* Métodos auxiliares para el AST */
     public boolean isExpression()
