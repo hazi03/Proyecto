@@ -154,9 +154,14 @@ public class Token {
     public boolean equals(Object o)
     {
         if(!(o instanceof Token))
+        {
             return false;
+        }
+
         if(this.tipo == ((Token)o).tipo)
+        {
             return true;
+        }
         return false;
     }
 
