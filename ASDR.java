@@ -62,18 +62,21 @@ public class ASDR implements Parser
     //FUN_DECL -> fun FUNCTION
     private void FUN_DECL()
     {
-        if(hayErrores) return;
         if(preanalisis.tipo==TipoToken.FUN)
         {
             match(TipoToken.FUN);
             FUNCTION();
+        }
+        else
+        {
+            hayErrores = true;
+            System.out.println("Error. Posicion: "+preanalisis.posicion+". Se esperaba 'fun'.");
         }
     }
 
     //FUNCTION -> id ( PARAMETERS_OPC ) BLOCK
     private void FUNCTION()
     {
-        if(hayErrores) return;
         if(preanalisis.tipo==TipoToken.IDENTIFIER)
         {
             match(TipoToken.IDENTIFIER);
@@ -81,6 +84,11 @@ public class ASDR implements Parser
             PARAMETERS_OPC();
             match(TipoToken.RIGHT_PAREN);
             BLOCK();
+        }
+        else
+        {
+            hayErrores = true;
+            System.out.println("Error. Posicion: "+preanalisis.posicion+". Se esperaba 'id'.");
         }
     }
 
@@ -97,11 +105,15 @@ public class ASDR implements Parser
     //PARAMETERS -> id PARAMETERS_2
     private void PARAMETERS()
     {
-        if(hayErrores) return;
         if(preanalisis.tipo==TipoToken.IDENTIFIER)
         {
             match(TipoToken.IDENTIFIER);
             PARAMETERS_2();
+        }
+        else
+        {
+            hayErrores = true;
+            System.out.println("Error. Posicion: "+preanalisis.posicion+". Se esperaba 'id'.");
         }
     }
 
@@ -124,13 +136,17 @@ public class ASDR implements Parser
     //VAR_DECL -> var id VAR_INIT ;
     private void VAR_DECL()
     {
-        if(hayErrores) return;
         if(preanalisis.tipo==TipoToken.VAR)
         {
             match(TipoToken.VAR);
             match(TipoToken.IDENTIFIER);
             VAR_INIT();
             match(TipoToken.SEMICOLON);
+        }
+        else
+        {
+            hayErrores = true;
+            System.out.println("Error. Posicion: "+preanalisis.posicion+". Se esperaba 'var'.");
         }
     }
 
@@ -218,7 +234,6 @@ public class ASDR implements Parser
     */
     private void UNARY()
     {
-        if(hayErrores) return;
         if(preanalisis.tipo==TipoToken.BANG)
         {
             match(TipoToken.BANG);
@@ -229,7 +244,7 @@ public class ASDR implements Parser
             match(TipoToken.MINUS);
             UNARY();
         }
-        else
+        else if(preanalisis.isExpression())
             CALL();
     }
 
@@ -252,7 +267,6 @@ public class ASDR implements Parser
     */
     private void PRIMARY()
     {
-        if(hayErrores) return;
         if(preanalisis.isExpression())
         {
             if(preanalisis.tipo==TipoToken.TRUE)
@@ -277,6 +291,7 @@ public class ASDR implements Parser
         else
         {
             hayErrores = true;
+            System.out.println("Error. Posicion: "+preanalisis.posicion+". Se esperaba Expresion o '('.");
         }
     }
 
@@ -293,11 +308,6 @@ public class ASDR implements Parser
             ARGUMENTS_OPC();
             match(TipoToken.RIGHT_PAREN);
             CALL_2();
-        }
-        else
-        {
-            hayErrores = true;
-            System.out.println("Se esperaba '('");
         }
     }
 
@@ -346,10 +356,6 @@ public class ASDR implements Parser
             match(TipoToken.STAR);
             UNARY();
             FACTOR_2();
-        }
-        else
-        {
-            hayErrores = true;
         }
     }
 
@@ -489,21 +495,24 @@ public class ASDR implements Parser
     */
     private void STATEMENT()
     {
-        if(hayErrores) return;
         if(preanalisis.isExpression())
             EXPR_STMT();
-        if(preanalisis.tipo==TipoToken.FOR)
+        else if(preanalisis.tipo==TipoToken.FOR)
             FOR_STMT();
-        if(preanalisis.tipo==TipoToken.IF)
+        else if(preanalisis.tipo==TipoToken.IF)
             IF_STMT();
-        if(preanalisis.tipo==TipoToken.PRINT)
+        else if(preanalisis.tipo==TipoToken.PRINT)
             PRINT_STMT();
-        if(preanalisis.tipo==TipoToken.RETURN)
+        else if(preanalisis.tipo==TipoToken.RETURN)
             RETURN_STMT();
-        if(preanalisis.tipo==TipoToken.WHILE)
+        else if(preanalisis.tipo==TipoToken.WHILE)
             WHILE_STMT();
-        if(preanalisis.tipo==TipoToken.LEFT_BRACE)
+        else if(preanalisis.tipo==TipoToken.LEFT_BRACE)
             BLOCK();
+        else
+        {
+            hayErrores = true;
+        }
     }
 
     //EXPR_STMT -> EXPRESSION ;
@@ -517,7 +526,6 @@ public class ASDR implements Parser
     //FOR_STMT -> for ( FOR_STMT_1 FOR_STMT_2 FOR_STMT_3 ) STATEMENT
     private void FOR_STMT()
     {
-        if(hayErrores) return;
         if(preanalisis.tipo==TipoToken.FOR)
         {
             match(TipoToken.FOR);
@@ -528,6 +536,11 @@ public class ASDR implements Parser
             match(TipoToken.RIGHT_PAREN);
             STATEMENT();
         }
+        else
+        {
+            hayErrores = true;
+            System.out.println("Error. Posicion: "+preanalisis.posicion+". Se esperaba 'for'.");
+        }
     }
 
     /*
@@ -537,13 +550,17 @@ public class ASDR implements Parser
     */
     private void FOR_STMT_1()
     {
-        if(hayErrores) return;
         if(preanalisis.tipo==TipoToken.VAR)
             VAR_DECL();
         else if(preanalisis.isExpression())
             EXPR_STMT();
         else if(preanalisis.tipo==TipoToken.SEMICOLON)
             match(TipoToken.SEMICOLON);
+        else
+        {
+            hayErrores = true;
+            System.out.println("Error. Posicion: "+preanalisis.posicion+". Se esperaba Variable, Expresion o ';'.");
+        }
     }
 
     /*
@@ -552,14 +569,18 @@ public class ASDR implements Parser
     */
     private void FOR_STMT_2()
     {
-        if(hayErrores) return;
         if(preanalisis.isExpression())
         {
             EXPRESSION();
             match(TipoToken.SEMICOLON);
         }
-        else
+        else if(preanalisis.tipo==TipoToken.SEMICOLON)
             match(TipoToken.SEMICOLON);
+        else
+        {
+            hayErrores = true;
+            System.out.println("Error. Posicion: "+preanalisis.posicion+". Se esperaba Expresion o ';'.");
+        }
     }
 
     /*
@@ -576,7 +597,6 @@ public class ASDR implements Parser
     //IF_STMT -> if ( EXPRESSION ) STATEMENT ELSE_STATEMENT
     private void IF_STMT()
     {
-        if(hayErrores) return;
         if(preanalisis.tipo==TipoToken.IF)
         {
             match(TipoToken.IF);
@@ -585,6 +605,11 @@ public class ASDR implements Parser
             match(TipoToken.RIGHT_PAREN);
             STATEMENT();
             ELSE_STATEMENT();
+        }
+        else
+        {
+            hayErrores = true;
+            System.out.println("Error. Posicion: "+preanalisis.posicion+". Se esperaba 'if'.");
         }
     }
 
@@ -605,24 +630,32 @@ public class ASDR implements Parser
     //PRINT_STMT -> print EXPRESSION ;
     private void PRINT_STMT()
     {
-        if(hayErrores) return;
         if(preanalisis.tipo==TipoToken.PRINT)
         {
             match(TipoToken.PRINT);
             EXPRESSION();
             match(TipoToken.SEMICOLON);
         }
+        else
+        {
+            hayErrores = true;
+            System.out.println("Error. Posicion: "+preanalisis.posicion+". Se esperaba 'print'.");
+        }
     }
 
     //RETURN_STMT -> return RETURN_EXP_OPC ;
     private void RETURN_STMT()
     {
-        if(hayErrores) return;
         if(preanalisis.tipo==TipoToken.RETURN)
         {
             match(TipoToken.RETURN);
             RETURN_EXP_OPC();
             match(TipoToken.SEMICOLON);
+        }
+        else
+        {
+            hayErrores = true;
+            System.out.println("Error. Posicion: "+preanalisis.posicion+". Se esperaba 'return'.");
         }
     }
 
@@ -642,7 +675,6 @@ public class ASDR implements Parser
     //WHILE_STMT -> while ( EXPRESSION ) STATEMENT
     private void WHILE_STMT()
     {
-        if(hayErrores) return;
         if(preanalisis.tipo==TipoToken.WHILE)
         {
             match(TipoToken.WHILE);
@@ -651,17 +683,26 @@ public class ASDR implements Parser
             match(TipoToken.RIGHT_PAREN);
             STATEMENT();
         }
+        else
+        {
+            hayErrores = true;
+            System.out.println("Error. Posicion: "+preanalisis.posicion+". Se esperaba 'while'.");
+        }
     }
 
     //BLOCK -> { DECLARATION }
     private void BLOCK()
     {
-        if(hayErrores) return;
         if(preanalisis.tipo==TipoToken.LEFT_BRACE)
         {
             match(TipoToken.LEFT_BRACE);
             DECLARATION();
             match(TipoToken.RIGHT_BRACE);
+        }
+        else
+        {
+            hayErrores = true;
+            System.out.println("Error. Posicion: "+preanalisis.posicion+". Se esperaba '{'.");
         }
     }
 
@@ -676,7 +717,10 @@ public class ASDR implements Parser
         else
         {
             hayErrores=true;
-            System.out.println("Error detectado");
+            String message = "Error en la linea " + preanalisis.posicion +
+                             ". Se esperaba " + tipoToken + 
+                             " pero se encontro " + preanalisis.tipo;
+            System.out.println(message);
         }
     }
 }
