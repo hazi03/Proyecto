@@ -1,4 +1,5 @@
-// Prueba 2:
+// P rueba   2:
+
 if(a < b){
     print "Válido";
 }
