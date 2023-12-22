@@ -54,7 +54,7 @@ public class Interprete {
             {
                 System.out.println(token);
             }
-
+            
             Parser parser = new ASDR(tokens);
             parser.parse();
 
