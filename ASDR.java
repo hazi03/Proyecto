@@ -10,13 +10,17 @@ public class ASDR implements Parser
     public ASDR(List<Token> tokens)
     {
         this.tokens=tokens;
-        preanalisis=this.tokens.get(i);
     }
 
     @Override
     public boolean parse()
     {
+        i = 0;
+        preanalisis = tokens.get(i);
+
+        //Primer cadena de produccion
         PROGRAM();
+        
         if(!hayErrores && preanalisis.tipo==TipoToken.EOF)
         {
             System.out.println("Consulta correcta");
