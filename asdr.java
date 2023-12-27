@@ -1,4 +1,5 @@
 
+import java.beans.Expression;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -57,13 +58,141 @@ private List<Statement> DECLARATION(List<Statement> sentencias){
             sentencias.add(sent);
             return DECLARATION(sentencias);
         }
-        if(currentToken.getTipo() == TipoToken.VAR){
+        else  if(currentToken.getTipo() == TipoToken.VAR){
             Statement sent = VAR_DECL();
             sentencias.add(sent);
             return DECLARATION(sentencias);
         }
+        else if(currentToken.getTipo() == TipoToken.BANG || currentToken.getTipo() == TipoToken.MINUS || currentToken.getTipo() == TipoToken.FALSE || currentToken.getTipo() == TipoToken.TRUE|| currentToken.getTipo() == TipoToken.NULL
+                || currentToken.getTipo() == TipoToken.NUMBER || currentToken.getTipo() == TipoToken.STRING || currentToken.getTipo() == TipoToken.IDENTIFIER || currentToken.getTipo() == TipoToken.LEFT_PAREN || currentToken.getTipo() ==TipoToken.PRINT
+                || currentToken.getTipo() == TipoToken.FOR || currentToken.getTipo() == TipoToken.IF || currentToken.getTipo() == TipoToken.RETURN || currentToken.getTipo() == TipoToken.WHILE || currentToken.getTipo() == TipoToken.LEFT_BRACE){
+                    Statement sent = STATEMENT();
+                    sentencias.add(sent);
+                    return DECLARATION(sentencias);
+                }
+        return sentencias;
 }
 
+/*Declaracion de una funcion
+ * FUN_DECL -> fun FUNCTION
+ */
+
+ private Statement FUN_DECL(){
+        if (hayErrores) return null;
+
+        if(currentToken.getTipo() == TipoToken.FUN){
+            match(TipoToken.FUN);//Avanza a la siguiente input
+            return FUNCTION();//regresa la sentencia,va a la funcion en otras 
+        }
+            else {hayErrores = true; 
+                return null;
+                }
+            
+ }
+
+ /*VAR_DECL -> var id VAR_INIT; */
+
+ private Statement VAR_DECL(){
+
+    if (hayErrores) {
+            return null;}
+
+    if(currentToken.getTipo() == TipoToken.VAR){
+        match(TipoToken.VAR);
+        match(TipoToken.IDENTIFIER);
+
+        Token name = previous(); //Para ingresarlo en StmtVar
+
+        Expression init = VAR_INIT();
+        match(TipoToken.SEMICOLON);
+        return new StmtVar(name,init);
+    }else{
+        hayErrores=true;
+        return null;
+    }
+ }
+
+ //VAR_INIT -> = EXPRESSION || EPSILON
+ //Regresa una expresion
+/*Puede no estar inicializada la variable, i*/
+ private Expression VAR_INIT(){
+        if(hayErrores)return null;
+
+        if(currentToken.getTipo() == TipoToken.EQUAL){
+            match(TipoToken.EQUAL);
+            return EXPRESSION();
+        }
+
+        /*epsilon */
+            return null;
+ }
+
+ /*****************Sentencias**************/
+
+ /*STATEMENT -> EXPR_STMT||FOR_STMT||IF_STMT||PRINT_STMT||RETURN_STMT||WHILE_STMT||BLOCK */
+/*Sentencias expresiones, for, if, print, return...,while,block */
+    private Statement STATEMENT(){
+        if (hayErrores) {
+                return null;
+        }
+
+        /*Se va hasta unary  */
+        if(currentToken.getTipo() == TipoToken.BANG || currentToken.getTipo() == TipoToken.MINUS || currentToken.getTipo() == TipoToken.FALSE || currentToken.getTipo() == TipoToken.TRUE|| currentToken.getTipo() == TipoToken.NULL
+        || currentToken.getTipo() == TipoToken.NUMBER || currentToken.getTipo() == TipoToken.STRING || currentToken.getTipo() == TipoToken.IDENTIFIER || currentToken.getTipo() == TipoToken.LEFT_PAREN){
+    return EXPR_STMT();
+}
+/*Si encunetra un for */
+else if (currentToken.getTipo() == TipoToken.FOR){
+    return FOR_STMT();
+} 
+/*Si encuentra un if */
+else if(currentToken.getTipo() == TipoToken.IF){
+    return IF_STMT();
+} 
+/*Si encuentra un print */
+else if (currentToken.getTipo() == TipoToken.PRINT){
+    return PRINT_STMT();
+} 
+/*Si encuentra un return */
+else if(currentToken.getTipo() == TipoToken.RETURN){
+    return RETURN_STMT();
+} 
+/*Si encuentra un while */
+else if (currentToken.getTipo() == TipoToken.WHILE){
+    return WHILE_STMT();
+} 
+/*Si encuentra un ( */
+else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
+    return BLOCK();
+} else{
+    hayErrores = true;
+    return null;
+}
+    }
+
+    /*EXPR_STMT -> EXPRESSION;*/
+
+        private Statement EXPR_STMT(){
+
+            if(hayErrores)return null;
+
+            if(currentToken.getTipo() == TipoToken.BANG 
+            || /*->*/currentToken.getTipo() == TipoToken.MINUS
+            || currentToken.getTipo() == TipoToken.FALSE
+            || currentToken.getTipo() == TipoToken.TRUE
+            || currentToken.getTipo() == TipoToken.NULL
+            || currentToken.getTipo() == TipoToken.NUMBER 
+            || currentToken.getTipo() == TipoToken.STRING 
+            || currentToken.getTipo() == TipoToken.IDENTIFIER 
+            || currentToken.getTipo() == TipoToken.LEFT_PAREN){
+                Expression expr = EXPRESSION();
+                match(TipoToken.SEMICOLON);
+                return new StmtExpression(expr);
+            }else{
+                hayErrores = true;
+                return null;
+            }
+        }
 
     private void term(){
         factor();
@@ -78,7 +207,7 @@ private List<Statement> DECLARATION(List<Statement> sentencias){
     }
 
     private Expression factor2(Expression expr){
-        switch (preanalisis.getTipo()){
+        switch (currentToken.getTipo()){
             case SLASH:
                 match(TipoToken.SLASH);
                 Token operador = previous();
@@ -96,7 +225,7 @@ private List<Statement> DECLARATION(List<Statement> sentencias){
     }
 
     private Expression unary(){
-        switch (preanalisis.getTipo()){
+        switch (currentToken.getTipo()){
             case BANG:
                 match(TipoToken.BANG);
                 Token operador = previous();
@@ -119,7 +248,7 @@ private List<Statement> DECLARATION(List<Statement> sentencias){
     }
 
     private Expression call2(Expression expr){
-        switch (preanalisis.getTipo()){
+        switch (currentToken.getTipo()){
             case LEFT_PAREN:
                 match(TipoToken.LEFT_PAREN);
                 List<Expression> lstArguments = argumentsOptional();
@@ -131,7 +260,7 @@ private List<Statement> DECLARATION(List<Statement> sentencias){
     }
 
     private Expression primary(){
-        switch (preanalisis.getTipo()){
+        switch (currentToken.getTipo()){
             case TRUE:
                 match(TipoToken.TRUE);
                 return new ExprLiteral(true);
@@ -164,17 +293,13 @@ private List<Statement> DECLARATION(List<Statement> sentencias){
     }
 
 
-    private void match(TipoToken tt) throws ParserException {
-        if(preanalisis.getTipo() ==  tt){
+    private void match(TipoToken tt) {
+        if(currentToken.getTipo() ==  tt){
             i++;
-            preanalisis = tokens.get(i);
+            currentToken = tokens.get(i);
         }
         else{
-            String message = "Error en la línea " +
-                    preanalisis.getPosition().getLine() +
-                    ". Se esperaba " + preanalisis.getTipo() +
-                    " pero se encontró " + tt;
-            throw new ParserException(message);
+            hayErrores = true;
         }
     }
 
