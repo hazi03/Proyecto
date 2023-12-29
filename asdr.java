@@ -396,6 +396,31 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
         return null;
     }
 
+    /* Ciclo WHILE
+     * WHILE_STMT -> while ( EXPRESSION ) STATEMENT
+     */
+    private Statement WHILE_STMT()
+    {
+        if(hayErrores) return null;
+
+        if(currentToken.getTipo()==TipoToken.WHILE)
+        {
+            match(TipoToken.WHILE);
+            match(TipoToken.LEFT_PAREN);
+            Expression condicion = EXPRESSION(); // a==1, a>=0, ... ,etc.
+            match(TipoToken.RIGHT_PAREN);
+            Statement body = STATEMENT(); // { ... }
+
+            return new StmtLoop(condicion, body);
+        }
+        else
+        {
+            hayErrores = true;
+            return null;
+        }
+    }
+    
+
     private void term(){
         factor();
         term2();
