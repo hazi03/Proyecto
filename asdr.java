@@ -464,16 +464,20 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
     }
 
     /*ASSIGNMENT -> LOGICOR ASSIGNMETN_OPC */
-        private Expression ASSIGNMENT(){
-                if(hayErrores ) return null;
+    private Expression ASSIGNMENT()
+    {
+        if(hayErrores ) return null;
 
-                if(currentToken.getTipo() == TipoToken.BANG || currentToken.getTipo() == TipoToken.MINUS || currentToken.getTipo() == TipoToken.FALSE || currentToken.getTipo() == TipoToken.TRUE|| currentToken.getTipo() == TipoToken.NULL
+        if(currentToken.getTipo() == TipoToken.BANG || currentToken.getTipo() == TipoToken.MINUS || currentToken.getTipo() == TipoToken.FALSE || currentToken.getTipo() == TipoToken.TRUE|| currentToken.getTipo() == TipoToken.NULL
                 || currentToken.getTipo() == TipoToken.NUMBER || currentToken.getTipo() == TipoToken.STRING || currentToken.getTipo() == TipoToken.IDENTIFIER || currentToken.getTipo() == TipoToken.LEFT_PAREN){
             return ASSIGNMENT_OPC(LOGIC_OR());
-        } else{
-                hayErrores = true;
-                return null;
+        } 
+        else
+        {
+            hayErrores = true;
+            return null;
         }
+    }
 
 
         /*ASSIGNMENT_OPC -> = EXPRESSION || EPSILON */
@@ -691,7 +695,7 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
 
             if(currentToken.getTipo() == TipoToken.BANG || currentToken.getTipo() == TipoToken.MINUS || currentToken.getTipo() == TipoToken.FALSE || currentToken.getTipo() == TipoToken.TRUE|| currentToken.getTipo() == TipoToken.NULL
             || currentToken.getTipo() == TipoToken.NUMBER || currentToken.getTipo() == TipoToken.STRING || currentToken.getTipo() == TipoToken.IDENTIFIER || currentToken.getTipo() == TipoToken.LEFT_PAREN){
-        return term2(factor());
+        return term_2(factor());
     }
     else {
         hayErrores = true;
@@ -811,10 +815,12 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
         switch (currentToken.getTipo()){
             case LEFT_PAREN:
                 match(TipoToken.LEFT_PAREN);
-                List<Expression> lstArguments = argumentsOptional();
+                List<Expression> lstArguments = ARGUMENTS_OPC();
                 match(TipoToken.RIGHT_PAREN);
                 ExprCallFunction ecf = new ExprCallFunction(expr, lstArguments);
                 return call2(ecf);
+            default:
+                break;
         }
         return expr;
     }
@@ -858,28 +864,90 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
         
     }
 
-    /*otros */
-        /*FUNCTION -> id ( PARAMETERS_OPC ) BLOCK */
+    /* otros */
+    /*FUNCTION -> id ( PARAMETERS_OPC ) BLOCK */
 
-        private Statement FUNCTION() {
+    private Statement FUNCTION() 
+    {
+        if(hayErrores) return null;
 
-            if(hayErrores)
-                return null;
-    /*si se encuentra un identificador */
-            if(currentToken.getTipo() == TipoToken.IDENTIFIER) {
-                match(TipoToken.IDENTIFIER);
-                Token name = previous(); /*Se obtiene el previo */
-                match(TipoToken.LEFT_PAREN);
-                List<Token> params = PARAMETERS_OPC();/*parametros opcionales */
-                match(TipoToken.RIGHT_PAREN);
-                StmtBlock body = (StmtBlock) BLOCK();
-                return new StmtFunction(name,params,body);
-            } else {
-                hayErrores = true;
-                return null;
-            }
-    
+        /*si se encuentra un identificador */
+
+        if(currentToken.getTipo() == TipoToken.IDENTIFIER) 
+        {
+            match(TipoToken.IDENTIFIER);
+            Token name = previous(); /*Se obtiene el previo */
+            match(TipoToken.LEFT_PAREN);
+            List<Token> params = PARAMETERS_OPC();/*parametros opcionales */
+            match(TipoToken.RIGHT_PAREN);
+            StmtBlock body = (StmtBlock) BLOCK();
+
+            return new StmtFunction(name,params,body);
+        } 
+        else 
+        {
+            hayErrores = true;
+            return null;
         }
+    }
+
+    // FUNCTIONS -> FUN_DECL FUNCTIONS
+    private void FUNCTIONS()
+    {
+        if(currentToken.getTipo() == TipoToken.FUN)
+        {
+            FUN_DECL();
+            FUNCTIONS();
+        }
+    }
+
+    // PARAMETERS_OPC -> PARAMETERS || E
+    private List<Token> PARAMETERS_OPC()
+    {
+        if(hayErrores) return null;
+
+        if(currentToken.getTipo() == TipoToken.IDENTIFIER)
+        {
+            return PARAMETERS();
+        }
+        return null;
+    }
+
+    // PARAMETERS -> id PARAMETERS_2
+    private List<Token> PARAMETERS()
+    {
+        if(hayErrores) return null;
+
+        if(currentToken.getTipo() == TipoToken.IDENTIFIER)
+        {
+            match(TipoToken.IDENTIFIER);
+
+            List<Token> listParameters = new ArrayList<>();
+            listParameters.add(previous());
+
+            PARAMETERS_2(listParameters);
+
+            return listParameters;
+        }
+        else
+        {
+            hayErrores = true;
+            return null;
+        }
+    }
+
+    // PARAMETERS_2 -> , id PARAMETERS_2
+    private void PARAMETERS_2(List<Token> listParameters)
+    {
+        if(currentToken.getTipo() == TipoToken.COMMA)
+        {
+            match(TipoToken.COMMA);
+            match(TipoToken.IDENTIFIER);
+            listParameters.add(previous());
+            PARAMETERS_2(listParameters);
+        }
+    }
+
 
     private void match(TipoToken tt) {
         if(currentToken.getTipo() ==  tt){
