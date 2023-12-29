@@ -52,6 +52,9 @@ public class Interprete {
             for(Token token : tokens){
                 System.out.println(token);
             }
+            parser parser = new asdr(tokens);
+        parser.parse();
+        
         }
         catch (Exception ex){
             ex.printStackTrace();

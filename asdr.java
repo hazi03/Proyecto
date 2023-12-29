@@ -13,7 +13,7 @@ public class asdr implements parser
     public asdr(List<Token> tokens )
     {
         this.tokens = tokens;
-        currentToken = tokens.get(i);
+        currentToken = this.tokens.get(i);
     }
   
    @Override
