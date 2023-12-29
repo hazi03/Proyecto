@@ -504,6 +504,61 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
     }
         }
 
+
+            //LOGIC_OR_2 -> or LOGIC_AND LOGIC_OR_2 || EMPTY
+    private Expression LOGIC_OR_2(Expression expr) {
+
+        if(hayErrores)
+            return null;
+
+        if(currentToken.getTipo() == TipoToken.OR){
+            match(TipoToken.OR);
+            Token operator = previous();
+            Expression expr2 = LOGIC_AND();
+            ExprLogical exprLogical = new ExprLogical(expr,operator,expr2);
+            return LOGIC_OR_2(exprLogical);
+        }
+
+        return expr;
+
+    }
+
+    //LOGIC_AND -> EQUALITY LOGIC_AND_2
+    private Expression LOGIC_AND() {
+
+        if(hayErrores)
+            return null;
+        if(currentToken.getTipo() == TipoToken.BANG || currentToken.getTipo() == TipoToken.MINUS || currentToken.getTipo() == TipoToken.FALSE || currentToken.getTipo() == TipoToken.TRUE|| currentToken.getTipo() == TipoToken.NULL
+                || currentToken.getTipo() == TipoToken.NUMBER || currentToken.getTipo() == TipoToken.STRING || currentToken.getTipo() == TipoToken.IDENTIFIER || currentToken.getTipo() == TipoToken.LEFT_PAREN){
+            return LOGIC_AND_2(EQUALITY());
+        }
+        else {
+            hayErrores = true;
+            return null;
+        }
+
+    }
+
+    //LOGIC_AND_2 -> and EQUALITY LOGIC_AND_2 || EMPTY
+    private Expression LOGIC_AND_2(Expression expr) {
+
+        if(hayErrores)
+            return null;
+        if(currentToken.getTipo() == TipoToken.AND){
+            match(TipoToken.AND);
+            Token operator = previous();
+            Expression expr2 = EQUALITY();
+            ExprLogical exprLogical = new ExprLogical(expr,operator,expr2);
+            return LOGIC_AND_2(exprLogical);
+        }
+
+        return expr;
+
+    }
+
+    
+
+
     private void term(){
         factor();
         term2();
