@@ -4,42 +4,45 @@ import java.util.Arrays;
 import java.util.List;
 
 
-public class asdr implements parser{
-
+public class asdr implements parser
+{
     private int i = 0;
     private Token currentToken;
     private boolean hayErrores = false;
     private final List<Token> tokens;
 
-    public asdr(List<Token> tokens ){
+    public asdr(List<Token> tokens )
+    {
         this.tokens = tokens;
         currentToken = tokens.get(i);
     }
   
-
    @Override
-   public boolean parse(){
-    /*Lista de statements, programa */
+   public boolean parse()
+   {
+        /* Lista de statements, programa */
         List<Statement> ast = PROGRAM();
-        /*Al finalizar todo */
-        if(currentToken.getTipo() == TipoToken.EOF && !hayErrores){
+
+        /* Al finalizar todo... */
+        if(currentToken.getTipo() == TipoToken.EOF && !hayErrores)
+        {
             System.out.println("Works");
             return true;
         }
         else
             System.err.println("Hay error en la sintaxis");
-            return false;
+        return false;
    }
 
    //PROGRAM -> DECLARATION
 
-   private List<Statement> PROGRAM(){
+   private List<Statement> PROGRAM()
+   {
+        List<Statement> sentencias = new ArrayList<>();
 
-    List<Statement> sentencias = new ArrayList<>();
+        if(hayErrores) return null;
 
-    if(hayErrores) return null;
-
-    return DECLARATION(sentencias);
+        return DECLARATION(sentencias);
    }
 
 
@@ -192,13 +195,16 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
                 return null;
             }
         }
+
     /*ciclo for 
      * FOR_STMT -> for(FOR_STMT_1 FOR_STMT_2 FOR_STMT_3) STATEMENT
     */
-        private Statement FOR_STMT(){
+        private Statement FOR_STMT()
+        {
             if(hayErrores) return null;
 
-            if(currentToken.getTipo() == TipoToken.FOR){
+            if(currentToken.getTipo() == TipoToken.FOR)
+            {
                 match(TipoToken.FOR);
                 match(TipoToken.LEFT_PAREN);//AVANZA for(
                 
@@ -229,6 +235,33 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
                     return null;
                 }
         }
+
+    // FOR_STMT_1 -> VAR_DECL || EXPR_STMT || ;
+    private Statement FOR_STMT_1() 
+    {
+        if(hayErrores) return null;
+
+        if(currentToken.getTipo() == TipoToken.VAR)
+        {
+            return VAR_DECL();
+        } 
+        else if (currentToken.getTipo() == TipoToken.BANG || currentToken.getTipo() == TipoToken.MINUS || currentToken.getTipo() == TipoToken.FALSE || currentToken.getTipo() == TipoToken.TRUE|| currentToken.getTipo() == TipoToken.NULL
+                || currentToken.getTipo() == TipoToken.NUMBER || currentToken.getTipo() == TipoToken.STRING || currentToken.getTipo() == TipoToken.IDENTIFIER || currentToken.getTipo() == TipoToken.LEFT_PAREN)
+        {
+            return EXPR_STMT();
+        } 
+        else if(currentToken.getTipo() == TipoToken.SEMICOLON)
+        {
+            match(TipoToken.SEMICOLON);
+            return null;
+        } 
+        else 
+        {
+            hayErrores = true;
+            return null;
+        }
+    }
+
 
 
     private void term(){
