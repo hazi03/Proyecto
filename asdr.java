@@ -1,9 +1,6 @@
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import javax.swing.plaf.TreeUI;
 
 
 public class asdr implements parser
@@ -892,14 +889,14 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
     }
 
     // FUNCTIONS -> FUN_DECL FUNCTIONS
-    private void FUNCTIONS()
+    /*private void FUNCTIONS()
     {
         if(currentToken.getTipo() == TipoToken.FUN)
         {
             FUN_DECL();
             FUNCTIONS();
         }
-    }
+    }*/
 
     // PARAMETERS_OPC -> PARAMETERS || E
     private List<Token> PARAMETERS_OPC()
@@ -948,6 +945,35 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
         }
     }
 
+    // ARGUMENTS_OPC -> EXPRESSION ARGUMENTS || E
+    private List<Expression> ARGUMENTS_OPC()
+    {
+        if(hayErrores) return null;
+
+        if(currentToken.getTipo() == TipoToken.BANG || currentToken.getTipo() == TipoToken.MINUS || currentToken.getTipo() == TipoToken.FALSE || currentToken.getTipo() == TipoToken.TRUE|| currentToken.getTipo() == TipoToken.NULL
+        || currentToken.getTipo() == TipoToken.NUMBER || currentToken.getTipo() == TipoToken.STRING || currentToken.getTipo() == TipoToken.IDENTIFIER || currentToken.getTipo() == TipoToken.LEFT_PAREN)
+        {
+            List<Expression> listArguments = new ArrayList<>();
+            Expression expression = EXPRESSION();
+            listArguments.add(expression);
+            ARGUMENTS(listArguments);
+
+            return listArguments;
+        }
+        return null;
+    }
+
+    // ARGUMENTS -> , EXPRESSION ARGUMENTS || E
+    private void ARGUMENTS(List<Expression> listArguments)
+    {
+        if(currentToken.getTipo() == TipoToken.COMMA)
+        {
+            match(TipoToken.COMMA);
+            Expression expression = EXPRESSION();
+            listArguments.add(expression);
+            ARGUMENTS(listArguments);
+        }
+    }
 
     private void match(TipoToken tt) {
         if(currentToken.getTipo() ==  tt){
@@ -964,3 +990,10 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
         return this.tokens.get(i - 1);
     }
 }
+
+
+
+
+
+
+/* 1000 LINEAS DE CODIGO DDDD: */
