@@ -1,5 +1,4 @@
 
-import java.beans.Expression;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -45,7 +44,7 @@ public class asdr implements parser{
 
 
 
-/*******************Declaraciones********/
+/*******************Declaraciones*************************/
 
 /*DECLARATION -> FUN_DECL DECLARATION || VAR_DECL DECLARATION || STATEMENT DECLARATION */
 
@@ -193,6 +192,44 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
                 return null;
             }
         }
+    /*ciclo for 
+     * FOR_STMT -> for(FOR_STMT_1 FOR_STMT_2 FOR_STMT_3) STATEMENT
+    */
+        private Statement FOR_STMT(){
+            if(hayErrores) return null;
+
+            if(currentToken.getTipo() == TipoToken.FOR){
+                match(TipoToken.FOR);
+                match(TipoToken.LEFT_PAREN);//AVANZA for(
+                
+                /*Parte de las 3 declaraciones de los tres parametros de un for(;;) */
+                Statement inicializacion = FOR_STMT_1();//i=0, var i = 0 
+                Expression condicion = FOR_STMT_2();//i<n
+                Expression accion = FOR_STMT_3();//i=i+1
+
+                match(TipoToken.RIGHT_PAREN);
+
+                Statement body = STATEMENT();
+
+                /*si hay expresion de accion */
+                    if(accion != null)
+                            body = new StmtBlock(Arrays.asList(body,new StmtExpression(accion)));
+                /*Si no hay condicion, entonces se establece la condicion en true, es decir que siempre esta activa */      
+                if(condicion == null)condicion = new ExprLiteral(true); 
+
+                body = new StmtLoop(condicion, body);
+        
+                if(inicializacion != null)
+                         body = new StmtBlock(Arrays.asList(inicializacion,body));
+
+                    return body;
+            }
+                else{
+                    hayErrores = true;
+                    return null;
+                }
+        }
+
 
     private void term(){
         factor();
