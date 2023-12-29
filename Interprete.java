@@ -57,18 +57,6 @@ public class Interprete {
             
             Parser parser = new ASDR(tokens);
             parser.parse();
-
-            Postfija gpf = new Postfija(tokens);
-            List<Token> postfija = gpf.convertir();
-
-            /*for(Token token : postfija)
-            {
-                System.out.println(token);
-            }*/
-
-            AST ast = new AST(postfija);
-            Arbol programa = ast.generarAST();
-            programa.recorrer();
         }
         catch (Exception ex)
         {
