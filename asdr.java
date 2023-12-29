@@ -607,10 +607,81 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
         }
         return expression;
     }
-    
+
+    /* Comparison
+     * COMPARISON -> TERM COMPARISON_2
+     */
+    private Expression COMPARISON()
+    {
+        if(hayErrores) return null;
+
+        if(currentToken.getTipo() == TipoToken.BANG || currentToken.getTipo() == TipoToken.MINUS || currentToken.getTipo() == TipoToken.FALSE || currentToken.getTipo() == TipoToken.TRUE|| currentToken.getTipo() == TipoToken.NULL
+        || currentToken.getTipo() == TipoToken.NUMBER || currentToken.getTipo() == TipoToken.STRING || currentToken.getTipo() == TipoToken.IDENTIFIER || currentToken.getTipo() == TipoToken.LEFT_PAREN)
+        {
+            return COMPARISON_2(term());
+        }
+        else
+        {
+            hayErrores = true;
+            return null;
+        }
+    }
+
+    /* COMPARISON_2 -> > TERM COMPARISON_2
+                    -> >= TERM COMPARISON_2
+                    -> < TERM COMPARISON_2
+                    -> <= TERM COMPARISON_2
+                    -> Ɛ
+    */
+    private Expression COMPARISON_2(Expression expr)
+    {
+        Token operator;
+        Expression expr2;
+        ExprBinary exprBinary;
+
+        if(hayErrores) return null;
+
+        if(currentToken.getTipo() == TipoToken.GREATER)
+        {
+            match(TipoToken.GREATER);
+            operator = previous();
+            expr2 = term();
+            exprBinary = new ExprBinary(expr,operator,expr2);
+
+            return COMPARISON_2(exprBinary);
+        } 
+        else if(currentToken.getTipo() == TipoToken.GREATER_EQUAL)
+        {
+            match(TipoToken.GREATER_EQUAL);
+            operator = previous();
+            expr2 = term();
+            exprBinary = new ExprBinary(expr,operator,expr2);
+
+            return COMPARISON_2(exprBinary);
+        } 
+        else if(currentToken.getTipo() == TipoToken.LESS)
+        {
+            match(TipoToken.LESS);
+            operator = previous();
+            expr2 = term();
+            exprBinary = new ExprBinary(expr,operator,expr2);
+
+            return COMPARISON_2(exprBinary);
+        }
+        else if(currentToken.getTipo() == TipoToken.LESS_EQUAL)
+        {
+            match(TipoToken.LESS_EQUAL);
+            operator = previous();
+            expr2 = term();
+            exprBinary = new ExprBinary(expr,operator,expr2);
+
+            return COMPARISON_2(exprBinary);
+        }
+        return expr;
+    }
 
 
-    private void term(){
+    private Expression term(){
         factor();
         term2();
     }
