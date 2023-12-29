@@ -472,8 +472,25 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
                 hayErrores = true;
                 return null;
         }
-        
+
+
+        /*ASSIGNMENT_OPC -> = EXPRESSION || EPSILON */
+
+            private Expression ASSIGNMENT_OPC (Expression expresion){
+                if(hayErrores)  return null;
+/*Si se encunetra un equal = */
+                if(currentToken.getTipo() == TipoToken.EQUAL){
+                        Token nombre = previous(); //Obtiene el anterior token
+                        match(TipoToken.EQUAL);
+                        Expression valor = EXPRESSION();//Se vueleve a llamar
+                      
+                        return new ExprAssign(nombre, valor);
+                }
+                return expresion;
+            
         }
+
+        
     private void term(){
         factor();
         term2();
