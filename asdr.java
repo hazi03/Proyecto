@@ -419,7 +419,33 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
             return null;
         }
     }
+
+    // BLOCK -> { DECLARATION }
+    private Statement BLOCK()
+    {
+        if(hayErrores) return null;
+
+        if(currentToken.getTipo()==TipoToken.LEFT_BRACE)
+        {
+            match(TipoToken.LEFT_BRACE);
+
+            List<Statement> statements = new ArrayList<>();
+            Statement block = new StmtBlock(DECLARATION(statements));
+
+            match(TipoToken.RIGHT_BRACE);
+
+            return block;
+        }
+        else
+        {
+            hayErrores = true;
+            return null;
+        }
+    }
     
+    /* Expresiones
+     * 
+     */
 
     private void term(){
         factor();
