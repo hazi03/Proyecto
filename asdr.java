@@ -695,13 +695,38 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
         hayErrores = true;
         return null;
     }
-     
+
         }
 
-    private Expression term(){
-        factor();
-        term2();
-    }
+        /* TERM_2 -> - FACTOR TERM_2 || + FACTOR TERM_2 || EMPTY */
+
+            private Expression term_2(Expression expresion){
+                    
+             
+
+                    if (hayErrores) {
+                            return null;
+                    }
+
+            if(currentToken.getTipo() == TipoToken.MINUS){
+                    match(TipoToken.MINUS);
+                    Token operator = previous(); //se ocupa en expresion bianria
+                    Expression expresion2 = factor();
+                    ExprBinary expresionBinaria = new ExprBinary(expresion,operator,expresion2);
+                    return term_2(expresionBinaria);
+                    }
+                    else if(currentToken.getTipo() == TipoToken.PLUS){
+                        match(TipoToken.PLUS);
+                    Token operator = previous(); //se ocupa en expresion bianria
+                    Expression expresion2 = factor();
+                    ExprBinary expresionBinaria = new ExprBinary(expresion,operator,expresion2);
+                    return term_2(expresionBinaria);
+                    }
+                    return expresion;
+
+            }
+
+ 
 
 
     private Expression factor(){
@@ -711,6 +736,7 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
     }
 
     private Expression factor2(Expression expr){
+
         switch (currentToken.getTipo()){
             case SLASH:
                 match(TipoToken.SLASH);
@@ -724,6 +750,8 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
                 expr2 = unary();
                 expb = new ExprBinary(expr, operador, expr2);
                 return factor2(expb);
+            default:
+                break;
         }
         return expr;
     }
