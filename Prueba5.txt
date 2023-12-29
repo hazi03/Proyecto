@@ -1,0 +1,4 @@
+// Prueba 4:
+for(var vari=0; ;){
+    print vari;
+}
