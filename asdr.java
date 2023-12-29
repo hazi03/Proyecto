@@ -299,6 +299,47 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
         return null;
     }
 
+    /* Sentencia IF
+     * IF_STMT -> if ( EXPRESSION ) STATEMENT ELSE_STATEMENT
+     */
+    private Statement IF_STMT()
+    {
+        if(hayErrores) return null;
+
+        if(currentToken.getTipo()==TipoToken.IF)
+        {
+            match(TipoToken.IF);
+            match(TipoToken.LEFT_PAREN);
+
+            Expression condicion = EXPRESSION(); //a==1, a>=0, ... ,etc.
+
+            match(TipoToken.RIGHT_PAREN);
+
+            Statement body = STATEMENT();
+            Statement elseStatement = ELSE_STMT();
+
+            return new StmtIf(condicion, body, elseStatement);
+        }
+        else
+        {
+            hayErrores = true;
+            return null;
+        }
+    }
+
+    // ELSE_STMT -> else STATEMENT || E
+    private Statement ELSE_STMT()
+    {
+        if(hayErrores) return null;
+
+        if(currentToken.getTipo() == TipoToken.ELSE)
+        {
+            match(TipoToken.ELSE);
+            return STATEMENT();
+        }  
+        return null;
+    }
+
     private void term(){
         factor();
         term2();
