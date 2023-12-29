@@ -556,6 +556,57 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
 
     }
 
+    /* Equality
+     * EQUALITY -> COMPARISON EQUALITY_2
+     */
+    private Expression EQUALITY()
+    {
+        if(hayErrores) return null;
+
+        if(currentToken.getTipo() == TipoToken.BANG || currentToken.getTipo() == TipoToken.MINUS || currentToken.getTipo() == TipoToken.FALSE || currentToken.getTipo() == TipoToken.TRUE|| currentToken.getTipo() == TipoToken.NULL
+        || currentToken.getTipo() == TipoToken.NUMBER || currentToken.getTipo() == TipoToken.STRING || currentToken.getTipo() == TipoToken.IDENTIFIER || currentToken.getTipo() == TipoToken.LEFT_PAREN)
+        {
+            return EQUALITY_2(COMPARISON());
+        }
+        else
+        {
+            hayErrores = true;
+            return null;
+        }
+    }
+
+    /* EQUALITY_2 -> != COMPARISON EQUALITY_2
+                  -> == COMPARISON EQUALITY_2
+                  -> Ɛ
+    */
+    private Expression EQUALITY_2(Expression expression)
+    {
+        Token operator;
+        Expression expr2;
+        ExprBinary exprBinary;
+
+        if(hayErrores) return null;
+
+        if(currentToken.getTipo()==TipoToken.BANG_EQUAL)
+        {
+            match(TipoToken.BANG_EQUAL);
+            operator = previous();  // operator = '!='
+            expr2 = COMPARISON();
+            exprBinary = new ExprBinary(expression, operator, expr2);
+
+            return EQUALITY_2(exprBinary);
+        }
+        else if(currentToken.getTipo()==TipoToken.EQUAL_EQUAL)
+        {
+            match(TipoToken.EQUAL_EQUAL);
+            operator = previous();  // operator = '=='
+            expr2 = COMPARISON();
+            exprBinary = new ExprBinary(expression, operator, expr2);
+
+            return EQUALITY_2(exprBinary);
+        }
+        return expression;
+    }
     
 
 
