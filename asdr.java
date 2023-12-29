@@ -350,7 +350,7 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
         if(currentToken.getTipo()==TipoToken.PRINT)
         {
             match(TipoToken.PRINT);
-            StmtPrint stmtPrint = new StmtPrint(EXPRESSION());
+            Statement stmtPrint = new StmtPrint(EXPRESSION());
             match(TipoToken.SEMICOLON);
 
             return stmtPrint;
@@ -360,6 +360,40 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
             hayErrores = true;
             return null;
         }
+    }
+
+    /* Sentencia RETURN
+     * RETURN_STMT -> return RETURN_EXP_OPC ;
+     */
+    private Statement RETURN_STMT()
+    {
+        if(hayErrores) return null;
+
+        if(currentToken.getTipo()==TipoToken.RETURN)
+        {
+            match(TipoToken.RETURN);
+            Expression expression = RETURN_EXP_OPC();
+            match(TipoToken.SEMICOLON);
+            
+            return new StmtReturn(expression);
+        }
+        else
+        {
+            hayErrores = true;
+            return null;
+        }
+    }
+
+    // RETURN_EXP_OPC -> EXPRESSION || E
+    private Expression RETURN_EXP_OPC()
+    {
+        if(hayErrores) return null;
+        if(currentToken.getTipo() == TipoToken.BANG || currentToken.getTipo() == TipoToken.MINUS || currentToken.getTipo() == TipoToken.FALSE || currentToken.getTipo() == TipoToken.TRUE|| currentToken.getTipo() == TipoToken.NULL
+        || currentToken.getTipo() == TipoToken.NUMBER || currentToken.getTipo() == TipoToken.STRING || currentToken.getTipo() == TipoToken.IDENTIFIER || currentToken.getTipo() == TipoToken.LEFT_PAREN)
+        {
+            return EXPRESSION();
+        }
+        return null;
     }
 
     private void term(){
