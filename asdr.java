@@ -680,6 +680,23 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
         return expr;
     }
 
+    /*TERM -> FACTOR TERM_2 */
+        private Expression term(){
+            if (hayErrores) 
+            {
+                return null;
+            }
+
+            if(currentToken.getTipo() == TipoToken.BANG || currentToken.getTipo() == TipoToken.MINUS || currentToken.getTipo() == TipoToken.FALSE || currentToken.getTipo() == TipoToken.TRUE|| currentToken.getTipo() == TipoToken.NULL
+            || currentToken.getTipo() == TipoToken.NUMBER || currentToken.getTipo() == TipoToken.STRING || currentToken.getTipo() == TipoToken.IDENTIFIER || currentToken.getTipo() == TipoToken.LEFT_PAREN){
+        return term2(factor());
+    }
+    else {
+        hayErrores = true;
+        return null;
+    }
+     
+        }
 
     private Expression term(){
         factor();
