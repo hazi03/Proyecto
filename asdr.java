@@ -446,7 +446,21 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
     /* Expresiones
      * 
      */
+    /* EXPRESSION -> ASSIGNMENT */
 
+    private Expression EXPRESSION(){
+        if (hayErrores) {
+                return null;
+        }
+        if(currentToken.getTipo() == TipoToken.BANG || currentToken.getTipo() == TipoToken.MINUS || currentToken.getTipo() == TipoToken.FALSE || currentToken.getTipo() == TipoToken.TRUE|| currentToken.getTipo() == TipoToken.NULL
+        || currentToken.getTipo() == TipoToken.NUMBER || currentToken.getTipo() == TipoToken.STRING || currentToken.getTipo() == TipoToken.IDENTIFIER || currentToken.getTipo() == TipoToken.LEFT_PAREN){
+    return ASSIGNMENT();
+    } else {
+        hayErrores = true;
+            return null;
+    }
+    }
+    
     private void term(){
         factor();
         term2();
