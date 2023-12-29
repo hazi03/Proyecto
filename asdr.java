@@ -340,6 +340,28 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
         return null;
     }
 
+    /* Funcion PRINT
+     * PRINT_STMT -> print EXPRESSION ;
+     */
+    private Statement PRINT_STMT()
+    {
+        if(hayErrores) return null;
+
+        if(currentToken.getTipo()==TipoToken.PRINT)
+        {
+            match(TipoToken.PRINT);
+            StmtPrint stmtPrint = new StmtPrint(EXPRESSION());
+            match(TipoToken.SEMICOLON);
+
+            return stmtPrint;
+        }
+        else
+        {
+            hayErrores = true;
+            return null;
+        }
+    }
+
     private void term(){
         factor();
         term2();
