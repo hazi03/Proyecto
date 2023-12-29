@@ -3,6 +3,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.swing.plaf.TreeUI;
+
 
 public class asdr implements parser
 {
@@ -729,14 +731,21 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
  
 
 
+    //FACTOR -> UNARY FACTOR_2
     private Expression factor(){
+        if(hayErrores) return null;
+
         Expression expr = unary();
         expr = factor2(expr);
         return expr;
+
     }
 
     private Expression factor2(Expression expr){
 
+        if(hayErrores){
+            return null;
+        }
         switch (currentToken.getTipo()){
             case SLASH:
                 match(TipoToken.SLASH);
@@ -757,6 +766,8 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
     }
 
     private Expression unary(){
+        if(hayErrores)return null;
+        
         switch (currentToken.getTipo()){
             case BANG:
                 match(TipoToken.BANG);
@@ -768,18 +779,35 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
                 operador = previous();
                 expr = unary();
                 return new ExprUnary(operador, expr);
-            default:
+            case FALSE:
+            case TRUE:
+            case NULL:
+            case NUMBER:
+            case STRING:
+            case IDENTIFIER:
+            case LEFT_PAREN:
                 return call();
+            default:
+                hayErrores = true;
+                return null;
         }
     }
 
     private Expression call(){
+
+        if(hayErrores) return null;
+
         Expression expr = primary();
+
         expr = call2(expr);
+
         return expr;
     }
 
     private Expression call2(Expression expr){
+        
+        if(hayErrores) return null;
+
         switch (currentToken.getTipo()){
             case LEFT_PAREN:
                 match(TipoToken.LEFT_PAREN);
@@ -792,6 +820,9 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
     }
 
     private Expression primary(){
+
+        if(hayErrores) return null;
+
         switch (currentToken.getTipo()){
             case TRUE:
                 match(TipoToken.TRUE);
@@ -816,14 +847,39 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
                 return new ExprVariable(id);
             case LEFT_PAREN:
                 match(TipoToken.LEFT_PAREN);
-                Expresion expr = expression();
+                Expression expr = EXPRESSION();
                 // Tiene que ser cachado aquello que retorna
                 match(TipoToken.RIGHT_PAREN);
                 return new ExprGrouping(expr);
+            default:
+                hayErrores = true;
+                return null;
         }
-        return null;
+        
     }
 
+    /*otros */
+        /*FUNCTION -> id ( PARAMETERS_OPC ) BLOCK */
+
+        private Statement FUNCTION() {
+
+            if(hayErrores)
+                return null;
+    /*si se encuentra un identificador */
+            if(currentToken.getTipo() == TipoToken.IDENTIFIER) {
+                match(TipoToken.IDENTIFIER);
+                Token name = previous(); /*Se obtiene el previo */
+                match(TipoToken.LEFT_PAREN);
+                List<Token> params = PARAMETERS_OPC();/*parametros opcionales */
+                match(TipoToken.RIGHT_PAREN);
+                StmtBlock body = (StmtBlock) BLOCK();
+                return new StmtFunction(name,params,body);
+            } else {
+                hayErrores = true;
+                return null;
+            }
+    
+        }
 
     private void match(TipoToken tt) {
         if(currentToken.getTipo() ==  tt){
