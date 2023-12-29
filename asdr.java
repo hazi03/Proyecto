@@ -262,7 +262,29 @@ else if (currentToken.getTipo() == TipoToken.LEFT_BRACE){
         }
     }
 
+    // FOR_STMT_2 -> EXPRESSION; || ;
+    private Expression FOR_STMT_2() 
+    {
+        if(hayErrores) return null;
 
+        if(currentToken.getTipo() == TipoToken.BANG || currentToken.getTipo() == TipoToken.MINUS || currentToken.getTipo() == TipoToken.FALSE || currentToken.getTipo() == TipoToken.TRUE|| currentToken.getTipo() == TipoToken.NULL
+                || currentToken.getTipo() == TipoToken.NUMBER || currentToken.getTipo() == TipoToken.STRING || currentToken.getTipo() == TipoToken.IDENTIFIER || currentToken.getTipo() == TipoToken.LEFT_PAREN)
+        {
+            Expression expr = EXPRESSION();
+            match(TipoToken.SEMICOLON);
+            return expr;
+        } 
+        else if(currentToken.getTipo() == TipoToken.SEMICOLON)
+        {
+            match(TipoToken.SEMICOLON);
+            return null;
+        } 
+        else 
+        {
+            hayErrores = true;
+            return null;
+        }
+    }
 
     private void term(){
         factor();
